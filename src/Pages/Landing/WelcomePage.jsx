@@ -1,19 +1,30 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
 
 function WelcomePage() {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleSignUp = () => {
+    navigate('/signup'); // Use navigate instead of history.push
+  };
+
+  const handleLogIn = () => {
+    navigate('/login'); // Use navigate instead of history.push
+  };
+
   const backgroundStyle = {
-    position: 'relative', // Position relative to allow overlay positioning
-    backgroundImage: `url('/images/Onboarding/Welcome_Page.jpeg')`, // Assuming the image is in the public folder
+    position: 'relative',
+    backgroundImage: `url('/images/Onboarding/Welcome_Page.jpeg')`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start', // Move content to the top
+    justifyContent: 'flex-start',
     alignItems: 'center',
     color: '#fff',
     textAlign: 'center',
-    paddingTop: '80px', // Increased padding to move text down
+    paddingTop: '80px',
   };
 
   const overlayStyle = {
@@ -23,41 +34,42 @@ function WelcomePage() {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Black overlay with 50% opacity
-    zIndex: 1, // Place the overlay on top of the background
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    zIndex: 1,
   };
 
   const contentStyle = {
     position: 'relative',
-    zIndex: 2, // Place the content on top of the overlay
+    zIndex: 2,
   };
 
   const titleStyle = {
-    fontSize: '70px', // Adjust the font size as needed
-    marginBottom: '100px', // Reduced margin to decrease space between title and paragraph
-    fontWeight: 'bold', // Make the text bold
+    fontSize: '70px',
+    marginBottom: '100px',
+    fontWeight: 'bold',
     marginTop: '50px',
   };
 
   const welcomeTextStyle = {
-    fontSize: '24px', // Adjust font size to match UI
-    fontFamily: 'cursive', // Replace with the font you think matches your UI
-    fontWeight: 'normal', // If your UI uses normal weight
-    marginTop: '20px', // Adjust spacing as needed
+    fontSize: '24px',
+    fontFamily: 'cursive',
+    fontWeight: 'normal',
+    marginTop: '20px',
   };
 
   const buttonStyle = {
     backgroundColor: 'white',
     color: 'black',
-    padding: '16px 92px', // Adjust padding to make sure text doesn't wrap
-    borderRadius: '9999px', // Full rounded corners
+    padding: '16px 92px',
+    borderRadius: '9999px',
     fontSize: '18px',
-    fontWeight: '500', // Medium font weight
+    fontWeight: '500',
     margin: '10px',
     maxWidth: '300px',
-    width: 'auto', // Set to auto to fit the content
+    width: 'auto',
     textAlign: 'center',
-    whiteSpace: 'nowrap', // Prevents text from wrapping
+    whiteSpace: 'nowrap',
+    cursor: 'pointer', // Add pointer cursor to indicate clickable buttons
   };
 
   return (
@@ -74,8 +86,8 @@ function WelcomePage() {
           <br/>Begin your auditory adventure with us today!
         </p>
         <div style={{ marginTop: '80px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-          <button style={buttonStyle}>Sign Up</button>
-          <button style={{ ...buttonStyle, backgroundColor: '#ff9800', color: 'white' }}>Log In</button>
+          <button style={buttonStyle} onClick={handleSignUp}>Sign Up</button>
+          <button style={{ ...buttonStyle, backgroundColor: '#ff9800', color: 'white' }} onClick={handleLogIn}>Log In</button>
         </div>
       </div>
     </div>
