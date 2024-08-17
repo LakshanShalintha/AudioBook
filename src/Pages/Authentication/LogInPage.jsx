@@ -1,153 +1,147 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
-import '@fortawesome/fontawesome-free/css/all.min.css';  // Import Font Awesome CSS
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth, db } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export default function LogInPage() {
-  const [formErrors, setFormErrors] = useState({
-    email: '',
-    password: '',
-  });
+  const [formErrors, setFormErrors] = useState({ email: '', password: '' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // Initialize navigate hook
+  useEffect(() => {
+    // Check if email is stored in localStorage
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    const remember = localStorage.getItem('rememberMe') === 'true';
+    if (remember && rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
-  const validateForm = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     const errors = {};
 
-    const form = event.target;
-
-    // Email validation
-    if (!form.email.value) {
+    if (!email) {
       errors.email = 'Please fill out this field.';
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(form.email.value)) {
-      errors.email = 'Please enter a valid email address.';
     }
-
-    // Password validation
-    if (!form.password.value) {
+    if (!password) {
       errors.password = 'Please fill out this field.';
     }
 
-    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
 
-    if (Object.keys(errors).length === 0) {
-      // If no errors, navigate to the Home Page
-      navigate('/home'); // Redirect to Home Page
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // Remember the email if "Remember Me" is checked
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+        localStorage.setItem('rememberMe', true);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+        localStorage.setItem('rememberMe', false);
+      }
+
+      navigate('/home');
+    } catch (error) {
+      handleError(error);
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Store user info in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        name: user.displayName,
+      });
+
+      navigate('/home');
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const handleError = (error) => {
+    let message = '';
+    switch (error.code) {
+      case 'auth/user-not-found':
+        message = 'No user found for that email.';
+        break;
+      case 'auth/wrong-password':
+        message = 'Wrong password provided for that user.';
+        break;
+      default:
+        message = 'Login failed. Please try again.';
+    }
+
+    alert(message);
+  };
+
   return (
-    <div className="fade-in" style={{
-      height: '100vh',
-      background: 'linear-gradient(to bottom, #131313, #312E2E)',
-      position: 'relative',
-      padding: '20px'
-    }}>
-      <style>
-        {`
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-            }
-            to {
-              opacity: 1;
-            }
-          }
+    <div className="fade-in" style={containerStyle}>
+      <h1 className="slide-up" style={titleStyle}>Log In</h1>
 
-          @keyframes slideUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .fade-in {
-            animation: fadeIn 1.5s ease-in-out;
-          }
-
-          .slide-up {
-            animation: slideUp 1.5s ease-in-out;
-          }
-
-          input::placeholder {
-            color: black;
-          }
-          .error-message {
-            color: white;
-            font-size: 10px;
-            margin-top: 0px;
-          }
-        `}
-      </style>
-
-      <h1 className="slide-up" style={{
-        color: 'white',
-        margin: 0,
-        position: 'absolute',
-        top: '80px',
-        left: '480px',
-        fontSize: '65px',
-        fontWeight: 'bold',
-        textAlign: 'left'
-      }}>
-        Log In
-      </h1>
-
-      <form onSubmit={validateForm} className="slide-up" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: '190px',
-        gap: '10px'
-      }}>
+      <form onSubmit={handleLogin} className="slide-up" style={formStyle}>
         <div style={inputContainerStyle}>
           <i className="fas fa-envelope" style={iconStyle}></i>
-          <input type="email" name="email" placeholder="Email" style={inputStyle} />
+          <input
+            type="email"
+            placeholder="Email"
+            style={inputStyle}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
           {formErrors.email && <div className="error-message">{formErrors.email}</div>}
         </div>
         <div style={inputContainerStyle}>
           <i className="fas fa-lock" style={iconStyle}></i>
-          <input type="password" name="password" placeholder="Password" style={inputStyle} />
+          <input
+            type="password"
+            placeholder="Password"
+            style={inputStyle}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
           {formErrors.password && <div className="error-message">{formErrors.password}</div>}
         </div>
 
-        <div className="slide-up" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          width: '550px',
-          marginBottom: '20px',
-          color: 'white'
-        }}>
+        <div style={rememberMeContainerStyle}>
           <div>
-            <input type="checkbox" id="rememberMe" />
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={() => setRememberMe(!rememberMe)}
+            />
             <label htmlFor="rememberMe" style={{ marginLeft: '8px', color: 'white' }}>Remember Me</label>
           </div>
-          <a href="/forgot-password" style={{ color: 'red', textDecoration: 'none' }}>Forgot Password?</a>
+          <a href="/forgot-password" style={forgotPasswordStyle}>Forgot Password?</a>
         </div>
 
         <button type="submit" className="slide-up" style={buttonStyle}>Log In</button>
-        <p className="slide-up" style={{ color: 'white', marginBottom: '20px' }}>Don't have an account? <a href="/signup" style={{ color: 'blue' }}>Sign Up</a></p>
+        <p className="slide-up" style={signUpTextStyle}>Don't have an account? <a href="/signup" style={signUpLinkStyle}>Sign Up</a></p>
 
-        <div className="slide-up" style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '550px',
-          margin: '10px 0',
-          color: 'white'
-        }}>
-          <hr style={{ width: '45%' }} />
+        <div className="slide-up" style={separatorStyle}>
+          <hr style={hrStyle} />
           <span style={{ margin: '0 10px' }}>or</span>
-          <hr style={{ width: '45%' }} />
+          <hr style={hrStyle} />
         </div>
 
-        <div className="slide-up" style={{ display: 'flex', justifyContent: 'center', gap: '40px' }}>
-          <i className="fab fa-google" style={{ ...socialIconStyle, fontSize: '35px' }}></i>
+        <div className="slide-up" style={socialContainerStyle}>
+          <i className="fab fa-google" onClick={handleGoogleLogin} style={{ ...socialIconStyle, fontSize: '35px' }}></i>
           <i className="fab fa-facebook" style={{ ...socialIconStyle, fontSize: '35px' }}></i>
         </div>
       </form>
@@ -155,21 +149,51 @@ export default function LogInPage() {
   );
 }
 
+// Styles
+
+const containerStyle = {
+  height: '100vh',
+  background: 'linear-gradient(to bottom, #131313, #312E2E)',
+  position: 'relative',
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+};
+
+const titleStyle = {
+  color: 'white',
+  margin: '0',
+  fontSize: '65px',
+  fontWeight: 'bold',
+  textAlign: 'center',
+  marginBottom: '60px',
+};
+
+const formStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '15px',  // Adjust gap to allow space for error messages
+  width: '100%',
+  maxWidth: '550px',
+};
+
 const inputContainerStyle = {
   position: 'relative',
-  width: '550px',
-  marginBottom: '20px',  // Ensure space below each input for error messages
+  width: '100%',
 };
 
 const inputStyle = {
   width: '100%',
-  height: '50px',  // Set the height of the input fields
-  padding: '18px 18px 18px 45px',  // Adjust padding to make room for the icon
+  height: '50px',
+  padding: '18px 18px 18px 45px',
   borderRadius: '20px',
   border: '1px solid #ddd',
   fontSize: '16px',
   backgroundColor: '#fff',
-  color: 'black'  // Set input text color to black
+  color: 'black',
 };
 
 const iconStyle = {
@@ -178,7 +202,20 @@ const iconStyle = {
   top: '50%',
   transform: 'translateY(-50%)',
   fontSize: '18px',
-  color: 'black'  // Set icon color to black
+  color: 'black',
+};
+
+const rememberMeContainerStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  width: '100%',
+  color: 'white',
+  marginBottom: '20px',
+};
+
+const forgotPasswordStyle = {
+  color: 'red',
+  textDecoration: 'none',
 };
 
 const buttonStyle = {
@@ -192,7 +229,36 @@ const buttonStyle = {
   cursor: 'pointer',
 };
 
+const signUpTextStyle = {
+  color: 'white',
+  marginTop: '20px',
+};
+
+const signUpLinkStyle = {
+  color: 'blue',
+  textDecoration: 'underline',
+};
+
+const separatorStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  margin: '20px 0',
+  color: 'white',
+};
+
+const hrStyle = {
+  width: '45%',
+};
+
+const socialContainerStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '40px',
+};
+
 const socialIconStyle = {
   color: 'white',
-  cursor: 'pointer'
+  cursor: 'pointer',
 };
