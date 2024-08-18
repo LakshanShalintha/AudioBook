@@ -10,10 +10,10 @@ export default function LogInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if email is stored in localStorage
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     const remember = localStorage.getItem('rememberMe') === 'true';
     if (remember && rememberedEmail) {
@@ -24,6 +24,8 @@ export default function LogInPage() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setErrorMessage('');
+
     const errors = {};
 
     if (!email) {
@@ -41,7 +43,6 @@ export default function LogInPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
 
-      // Remember the email if "Remember Me" is checked
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
         localStorage.setItem('rememberMe', true);
@@ -62,7 +63,6 @@ export default function LogInPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Store user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         name: user.displayName,
@@ -78,21 +78,32 @@ export default function LogInPage() {
     let message = '';
     switch (error.code) {
       case 'auth/user-not-found':
-        message = 'No user found for that email.';
-        break;
       case 'auth/wrong-password':
-        message = 'Wrong password provided for that user.';
+        message = 'Invalid Email or Password';
         break;
       default:
-        message = 'Login failed. Please try again.';
+        message = 'Invalid Email or Password!';
     }
 
-    alert(message);
+    setErrorMessage(message);
+  };
+
+  const closePopup = () => {
+    setErrorMessage('');
   };
 
   return (
     <div className="fade-in" style={containerStyle}>
       <h1 className="slide-up" style={titleStyle}>Log In</h1>
+
+      {errorMessage && (
+        <div style={popupStyle}>
+          <div style={popupContentStyle}>
+            <span style={closeButtonStyle} onClick={closePopup}>&times;</span>
+            <p>{errorMessage}</p>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleLogin} className="slide-up" style={formStyle}>
         <div style={inputContainerStyle}>
@@ -170,12 +181,44 @@ const titleStyle = {
   marginBottom: '60px',
 };
 
+const popupStyle = {
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  width: '100%',
+  height: '100%',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: '1000',
+};
+
+const popupContentStyle = {
+  backgroundColor: '#fff',
+  padding: '20px',
+  borderRadius: '10px',
+  textAlign: 'center',
+  position: 'relative',
+  width: '80%',
+  maxWidth: '400px',
+};
+
+const closeButtonStyle = {
+  position: 'absolute',
+  top: '10px',
+  right: '10px',
+  cursor: 'pointer',
+  fontSize: '20px',
+  color: '#000',
+};
+
 const formStyle = {
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: '15px',  // Adjust gap to allow space for error messages
+  gap: '15px',
   width: '100%',
   maxWidth: '550px',
 };
