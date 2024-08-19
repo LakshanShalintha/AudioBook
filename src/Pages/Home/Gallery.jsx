@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import NavBar from '../../Common_Parts/Common/NavBar'; // Ensure correct import path
 import Footer from '../../Common_Parts/Common/Footer'; // Ensure correct import path
 import { FaHeart } from 'react-icons/fa';
@@ -11,9 +11,11 @@ function Gallery() {
   const [favorites, setFavorites] = useState([]);
   const [pdfFiles, setPdfFiles] = useState([]);
   const [filteredPdfFiles, setFilteredPdfFiles] = useState([]);
+  const [loading, setLoading] = useState(true); // Introduce a loading state
   const auth = getAuth();
   const db = getFirestore();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPdfs = async (folderRef) => {
@@ -61,6 +63,7 @@ function Gallery() {
       const rootRef = ref(storage, 'gs://audirab-44b07.appspot.com');
       const allPdfs = await fetchPdfs(rootRef);
       setPdfFiles(allPdfs);
+      setLoading(false); // Set loading to false after PDFs are fetched
       listenToFavorites(); // Listen to real-time updates
     };
 
@@ -111,6 +114,12 @@ function Gallery() {
     }
   };
 
+  const handlePdfClick = (pdf) => {
+    const queryString = new URLSearchParams({ pdfUrl: pdf.url, story: pdf.name }).toString();
+    navigate(`/pdf-viewer?${queryString}`);
+  };
+  
+
   const formatPdfName = (pdfName) => {
     return pdfName.split('/').pop().replace('.pdf', '');
   };
@@ -122,7 +131,11 @@ function Gallery() {
 
       <div className="p-4 flex-grow flex justify-center items-center">
         <div className="max-w-5xl w-full">
-          {filteredPdfFiles.length === 0 ? (
+          {loading ? (
+            <div className="text-white text-center">
+              Loading...
+            </div>
+          ) : filteredPdfFiles.length === 0 ? (
             <div className="text-white text-center">
               No PDF available
             </div>
@@ -134,16 +147,20 @@ function Gallery() {
               {filteredPdfFiles.map((pdf) => (
                 <div 
                   key={pdf.name} 
-                  className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-950 rounded-lg text-white relative"
+                  className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-950 rounded-lg text-white relative cursor-pointer"
+                  onClick={() => handlePdfClick(pdf)} // Open PDF on click
                 >
-                  <a href={pdf.url} target="_blank" rel="noopener noreferrer" className="truncate w-full text-center">
+                  <a href="#!" className="truncate w-full text-center">
                     {formatPdfName(pdf.name)}
                   </a>
                   <FaHeart 
                     className={`absolute top-2 right-2 cursor-pointer ${
                       favorites.includes(pdf.name) ? 'text-red-500' : 'text-gray-400'
                     }`}
-                    onClick={() => toggleFavorite(pdf)}
+                    onClick={(e) => { 
+                      e.stopPropagation(); // Prevent the click event from propagating to the parent div
+                      toggleFavorite(pdf); 
+                    }}
                   />
                 </div>
               ))}

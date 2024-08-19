@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
 import NavBar from '../../Common_Parts/Common/NavBar'; // Ensure correct import path
 import Footer from '../../Common_Parts/Common/Footer'; // Ensure correct import path
 import { FaHeart } from 'react-icons/fa';
 import { getFirestore, doc, onSnapshot, updateDoc, arrayRemove } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage, ref, getDownloadURL } from 'firebase/storage'; // Import Firebase Storage methods
 
 function Favorite() {
   const [favorites, setFavorites] = useState([]);
   const [filteredFavorites, setFilteredFavorites] = useState([]);
   const auth = getAuth();
   const db = getFirestore();
+  const storage = getStorage(); // Initialize storage
   const location = useLocation();
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const listenToFavorites = () => {
@@ -58,6 +61,17 @@ function Favorite() {
     return pdfName.split('/').pop().replace('.pdf', '');
   };
 
+  const handlePdfClick = async (pdfName) => {
+    try {
+      const pdfRef = ref(storage, pdfName);
+      const pdfUrl = await getDownloadURL(pdfRef);
+
+      navigate('/pdf-viewer', { state: { pdfUrl, story: pdfName } });
+    } catch (error) {
+      console.error("Error opening PDF:", error);
+    }
+  };
+
   return (
     <div className="bg-gray-900 min-h-screen flex flex-col">
       <NavBar />
@@ -75,12 +89,16 @@ function Favorite() {
               {filteredFavorites.map((pdfName) => (
                 <div 
                   key={pdfName} 
-                  className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-900 rounded-lg text-white relative"
+                  className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-900 rounded-lg text-white relative cursor-pointer"
+                  onClick={() => handlePdfClick(pdfName)} // Handle PDF click
                 >
                   <span className="truncate">{formatPdfName(pdfName)}</span>
                   <FaHeart 
                     className="absolute top-2 right-2 cursor-pointer text-red-500"
-                    onClick={() => removeFavorite(pdfName)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering PDF click when removing favorite
+                      removeFavorite(pdfName);
+                    }}
                   />
                 </div>
               ))}
