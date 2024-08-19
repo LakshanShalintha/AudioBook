@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
+<<<<<<< HEAD
     "@google/generative-ai": "^0.17.0",
     "axios": "^1.7.4",
     "firebase": "^10.13.0",
     "jspdf": "^2.5.1",
+=======
+    "firebase": "^10.13.0",
+>>>>>>> cbb9c87b895c4fd9e3a98b8eb27d7aa5773cb298
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",

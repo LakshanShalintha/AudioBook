@@ -304,4 +304,8 @@ const socialContainerStyle = {
 const socialIconStyle = {
   color: 'white',
   cursor: 'pointer',
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> cbb9c87b895c4fd9e3a98b8eb27d7aa5773cb298
