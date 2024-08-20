@@ -2,15 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { FaUser, FaEnvelope } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
-<<<<<<< HEAD
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 function Details({ imageUrl, onUpdateName }) {
-=======
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-
-function Details({ imageUrl, name, email, onUpdateName }) {
->>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
   const [nameInput, setNameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [message, setMessage] = useState('');
@@ -21,7 +15,6 @@ function Details({ imageUrl, name, email, onUpdateName }) {
   const currentUser = auth.currentUser;
 
   useEffect(() => {
-<<<<<<< HEAD
     if (currentUser) {
       const fetchUserData = async () => {
         try {
@@ -38,11 +31,6 @@ function Details({ imageUrl, name, email, onUpdateName }) {
       fetchUserData();
     }
   }, [currentUser, db]);
-=======
-    setNameInput(name || '');
-    setEmailInput(email || '');
-  }, [name, email]);
->>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
 
   const handleSave = async () => {
     if (!currentUser) {
@@ -72,13 +60,9 @@ function Details({ imageUrl, name, email, onUpdateName }) {
       );
       setMessage('Profile updated successfully!');
       setMessageType('success');
-<<<<<<< HEAD
       if (onUpdateName && typeof onUpdateName === 'function') {
         onUpdateName(nameInput);
       }
-=======
-      onUpdateName(nameInput);
->>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
       navigate('/profile');
     } catch (error) {
       console.error("Error saving profile:", error);
