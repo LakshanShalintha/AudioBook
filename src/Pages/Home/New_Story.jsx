@@ -42,7 +42,11 @@ const New_Story = () => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+<<<<<<< HEAD
         const prompt = `Write a long imaginative audio book story for relax mined, give that perfect and like real story in 20000 words based on the word: ${input}. The story should be engaging and suitable for all ages.`;
+=======
+        const prompt = `Write a long imaginative audio book story for relax mined in 15000 words based on the word: ${input}. The story should be engaging and suitable for all ages.`;
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
 
         const result = await model.generateContent(prompt, { signal });
         let storyText = result.response.text();
@@ -179,7 +183,11 @@ const New_Story = () => {
         <div className="flex flex-col items-center w-full max-w-md mx-auto mt-8 relative">
           <input
             type="text"
+<<<<<<< HEAD
             placeholder="Enter your title to generate a story"
+=======
+            placeholder="Enter a word to generate a story"
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
             className="border rounded-lg p-2 w-full text-black text-[16px]"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -209,7 +217,11 @@ const New_Story = () => {
         {showPopup && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg">
+<<<<<<< HEAD
               <p className="text-red-500 text-xl font-bold mb-4">Enter the correct title</p>
+=======
+              <p className="text-red-500 text-xl font-bold mb-4">Enter correct words</p>
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
               <button
                 className="bg-orange-500 text-white rounded-lg px-4 py-2 text-[16px]"
                 onClick={() => setShowPopup(false)}

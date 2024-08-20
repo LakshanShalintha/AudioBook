@@ -2,14 +2,19 @@ import React, { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import NavBar from '../Common/NavBar';
 import Footer from '../Common/Footer';
+<<<<<<< HEAD
 import { FaVolumeUp, FaStop, FaTimes } from "react-icons/fa"; // Import FaTimes icon
 import MusicVisualizer from './MusicVisualizer'; // Import the visualizer component
+=======
+import { FaVolumeUp, FaStop } from "react-icons/fa"; // Import both speech and stop icons
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
 
 const Story_Display = () => {
   const location = useLocation();
   const { story, input } = location.state || { story: "No story available", input: "Your Story" };
 
   const [rawSubtopic, ...restOfStory] = story.split('\n\n');
+<<<<<<< HEAD
   const subtopic = rawSubtopic.replace(/^##\s*/, '');
 
   const paragraphs = restOfStory.join('\n\n').split('\n\n').map(paragraph => {
@@ -196,6 +201,54 @@ const Story_Display = () => {
       )}
 
       <div className={`fixed right-16 z-10 transition-all duration-500 ${isSpeaking ? 'top-40' : 'top-16'}`}>
+=======
+  const subtopic = rawSubtopic.replace(/^##\s*/, ''); // Remove the '## ' from the subtopic
+
+  const paragraphs = restOfStory.join('\n\n').split('\n\n').map(paragraph => {
+    return paragraph
+      .replace(/([a-z])([A-Z])/g, '$1. $2')  // Add a period between lowercase and uppercase letters
+      .replace(/([a-zA-Z])([0-9])/g, '$1, $2')  // Add a comma between letters and numbers
+      .replace(/([0-9])([a-zA-Z])/g, '$1, $2'); // Add a comma between numbers and letters
+  });
+
+  const [isSpeaking, setIsSpeaking] = useState(false); // State to track whether speech is ongoing
+  const [currentCharIndex, setCurrentCharIndex] = useState(0); // Track the current character index in the story
+
+  const utteranceRef = useRef(null);
+
+  const handleSpeechToggle = () => {
+    if (isSpeaking) {
+        window.speechSynthesis.cancel(); // Stop the speech
+        setIsSpeaking(false); // Update state to reflect that speech has stopped
+    } else {
+        const cleanedStory = story.replace(/#\S+/g, ''); // Remove any #tags from the entire story text including the subtopic
+        
+        const utterance = new SpeechSynthesisUtterance(cleanedStory.slice(currentCharIndex));
+        utteranceRef.current = utterance;
+        
+        utterance.onboundary = (event) => {
+            if (event.name === 'word') {
+                setCurrentCharIndex(currentCharIndex + event.charIndex);
+            }
+        };
+
+        utterance.onend = () => {
+            setIsSpeaking(false);
+            setCurrentCharIndex(0); // Reset the character index when speech ends naturally
+        };
+
+        window.speechSynthesis.speak(utterance);
+        setIsSpeaking(true); // Update state to reflect that speech has started
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#112233] to-[#000000] text-center text-white relative">
+      <NavBar hideSearch={true} />
+
+      {/* Updated the CSS here */}
+      <div className="fixed top-32 right-16">
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
         {isSpeaking ? (
           <FaStop 
             onClick={handleSpeechToggle}
@@ -211,7 +264,11 @@ const Story_Display = () => {
         ) : (
           <FaVolumeUp 
             onClick={handleSpeechToggle}
+<<<<<<< HEAD
             className="cursor-pointer text-black p-2 border border-black mt-16" 
+=======
+            className="cursor-pointer text-black p-2 border border-black" 
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
             style={{ 
               fontSize: '40px',
               borderRadius: '10px',
@@ -223,7 +280,11 @@ const Story_Display = () => {
         )}
       </div>
       
+<<<<<<< HEAD
       <div className={`flex-grow py-20 px-4 md:px-20 lg:px-60 transition-all duration-500 ${isSpeaking ? 'mt-40' : 'mt-0'}`}>
+=======
+      <div className="flex-grow py-20 px-4 md:px-20 lg:px-60 mt-16">
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
         <h1 className="text-[84px] font-bold mb-4">{input.toUpperCase()}</h1>
         
         {subtopic && (

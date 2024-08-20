@@ -8,12 +8,20 @@ function Footer() {
           <h3 className="text-lg font-semibold">Contact</h3>
           <p>011-23231230 / 077-2323112</p>
           <p>
+<<<<<<< HEAD
             E-mail: <a href="mailto:audirab123@gmail.com" className="no-underline">audirab123@gmail.com</a>
+=======
+            E-mail: <a href="mailto:travel123@gmail.com" className="no-underline">audirab123@gmail.com</a>
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
           </p>
         </div>
         <div className="w-full md:w-1/4 mb-4 md:mb-0">
           <h3 className="text-lg font-semibold">Quick Links</h3>
+<<<<<<< HEAD
           <ul className="list-disc list-inside text-white">
+=======
+          <ul className="list-disc list-inside text-white"> {/* Add text-white to change bullet color */}
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
             <li><a href="home" className="no-underline">Home</a></li>
             <li><a href="favorite" className="no-underline">Favorite</a></li>
             <li><a href="/new_story" className="no-underline">Create</a></li>
@@ -23,11 +31,19 @@ function Footer() {
         </div>
         <div className="w-full md:w-1/4 mb-4 md:mb-0">
           <h3 className="text-lg font-semibold">Follow Us</h3>
+<<<<<<< HEAD
           <ul className="list-disc list-inside text-white">
+=======
+          <ul className="list-disc list-inside text-white"> {/* Add text-white to change bullet color */}
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
             <li><a href="https://www.facebook.com" className="no-underline">Facebook</a></li>
             <li><a href="https://www.instagram.com" className="no-underline">Instagram</a></li>
             <li><a href="https://www.twitter.com" className="no-underline">Twitter</a></li>
             <li><a href="https://www.tiktok.com" className="no-underline">TikTok</a></li>
+<<<<<<< HEAD
+=======
+            <li><a href="#viber" className="no-underline">Viber</a></li>
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
           </ul>
         </div>
       </div>

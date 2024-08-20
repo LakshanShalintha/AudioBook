@@ -89,7 +89,11 @@ function Favorite() {
               {filteredFavorites.map((pdfName) => (
                 <div 
                   key={pdfName} 
+<<<<<<< HEAD
                   className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-950 rounded-lg text-white relative cursor-pointer"
+=======
+                  className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-900 rounded-lg text-white relative cursor-pointer"
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
                   onClick={() => handlePdfClick(pdfName)} // Handle PDF click
                 >
                   <span className="truncate">{formatPdfName(pdfName)}</span>

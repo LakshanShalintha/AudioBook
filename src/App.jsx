@@ -16,11 +16,14 @@ import New_Story from './Pages/Home/New_Story';
 import ForgotPasswordPage from './Pages/Authentication/ForgotPasswordPage';
 import Story_Display from "./Common_Parts/PDFs/Story_Display";
 import PDFViewer from './Common_Parts/PDFs/PDFViewer';
+<<<<<<< HEAD
 import BiographiesMemories from './Common_Parts/Categories/Biographies_Memories';
 import KidsFamily from './Common_Parts/Categories/Kids_Family';
 import LiteratureFiction from './Common_Parts/Categories/Literature_Fiction';
 import PersonalGrowth from './Common_Parts/Categories/Personal_Growth';
 import Romance from './Common_Parts/Categories/Romance';
+=======
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
 
 
 function App() {
@@ -42,11 +45,14 @@ function App() {
         <Route path="/display-story" element={<Story_Display />} /> {/* New route for Story_Display */}
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/pdf-viewer" element={<PDFViewer />} />
+<<<<<<< HEAD
         <Route path="/Kids_Family" element={<KidsFamily />} />
         <Route path="/Biographies_Memories" element={<BiographiesMemories />} />
         <Route path="/Literature_Fiction" element={<LiteratureFiction />} />
         <Route path="/Personal_Growth" element={<PersonalGrowth />} />
         <Route path="/Romance" element={<Romance />} />
+=======
+>>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
       </Routes>
     </Router>
   );
