@@ -305,6 +305,7 @@ const socialIconStyle = {
   color: 'white',
   cursor: 'pointer',
 <<<<<<< HEAD
+<<<<<<< HEAD
 };
 =======
 <<<<<<< HEAD
@@ -317,3 +318,8 @@ const socialIconStyle = {
 >>>>>>> 599a70ead8d9b230531bfba51b1b0d3429ea38d7
 >>>>>>> 1fb85571c0e8a76ffd687080ac533169fd3bd11b
 >>>>>>> 46197457c9546c4070be63de12004d6eb700cc24
+=======
+};
+
+
+>>>>>>> 3db337c36db78ccebba6ec40efbcbe16ea87b0ba
