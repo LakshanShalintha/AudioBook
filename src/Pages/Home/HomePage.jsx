@@ -32,7 +32,19 @@ function HomePage() {
   };
 
   const handleCategoryClick = (category) => {
-    navigate(`/gallery?category=${encodeURIComponent(category)}`);
+    if (category === 'Literature & Fiction') {
+      navigate('/Literature_Fiction');
+    } else if (category === 'Romance') {
+      navigate('/Romance');
+    } else if (category === 'Kids & Family') {
+      navigate('/Kids_Family');
+    } else if (category === 'Biographies & Memories') {
+      navigate('/Biographies_Memories');
+    } else if (category === 'Personal Growth') {
+      navigate('/Personal_Growth');
+    } else {
+      navigate(`/gallery?category=${encodeURIComponent(category)}`);
+    }
   };
 
   return (
@@ -106,8 +118,8 @@ function HomePage() {
               <img src="/images/Home/Explore/Kids & Family.webp" alt="Kids" className="w-[64px] h-[64px] rounded-full shadow-lg" />
             </div>
             <div className="w-full h-[160px] bg-[#152238] rounded-lg flex items-center justify-between p-4 shadow-lg cursor-pointer"
-              onClick={() => handleCategoryClick('Biographies & Memoirs')}>
-              <span className="text-white text-lg font-bold">Biographies & Memoirs</span>
+              onClick={() => handleCategoryClick('Biographies & Memories')}>
+              <span className="text-white text-lg font-bold">Biographies & Memories</span>
               <img src="/images/Home/Explore/Biographies & Memoirs.webp" alt="Biographies & Memoirs" className="w-[64px] h-[64px] rounded-full shadow-lg" />
             </div>
             <div className="w-full h-[160px] bg-[#152238] rounded-lg flex items-center justify-between p-4 shadow-lg cursor-pointer"
@@ -120,6 +132,9 @@ function HomePage() {
       </div>
 
       {/* Other sections of your homepage */}
+
+     
+
 
       <div className="bg-gradient-to-r from-[#000000] to-[#112233] py-20 px-6 mt-16 text-center overflow-hidden">
         <h2 className="text-white text-[28px] md:text-[36px] lg:text-[48px] font-bold mb-6">
