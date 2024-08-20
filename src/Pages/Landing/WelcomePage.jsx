@@ -1,15 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
+import { useNavigate } from 'react-router-dom'; 
 
 function WelcomePage() {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate(); 
 
   const handleSignUp = () => {
-    navigate('/signup'); // Use navigate instead of history.push
+    navigate('/signup');
   };
 
   const handleLogIn = () => {
-    navigate('/login'); // Use navigate instead of history.push
+    navigate('/login');
   };
 
   const backgroundStyle = {
@@ -20,15 +20,13 @@ function WelcomePage() {
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
     color: '#fff',
     textAlign: 'center',
-    paddingTop: '80px',
   };
 
   const overlayStyle = {
-    content: '""',
     position: 'absolute',
     top: 0,
     left: 0,
@@ -41,13 +39,13 @@ function WelcomePage() {
   const contentStyle = {
     position: 'relative',
     zIndex: 2,
+    padding: '20px',
   };
 
   const titleStyle = {
     fontSize: '70px',
-    marginBottom: '100px',
+    marginBottom: '50px',
     fontWeight: 'bold',
-    marginTop: '50px',
   };
 
   const welcomeTextStyle = {
@@ -69,7 +67,7 @@ function WelcomePage() {
     width: 'auto',
     textAlign: 'center',
     whiteSpace: 'nowrap',
-    cursor: 'pointer', // Add pointer cursor to indicate clickable buttons
+    cursor: 'pointer',
   };
 
   return (
@@ -77,15 +75,14 @@ function WelcomePage() {
       <div style={overlayStyle}></div> {/* Overlay */}
       <div style={contentStyle}>
         <h1 style={titleStyle}>AudiRAB</h1>
+        <p style={welcomeTextStyle}>Welcome to AudiRAB!</p>
         <p style={welcomeTextStyle}>
-          Welcome to AudiRAB!
+          Join us and unlock a universe of captivating audiobooks.<br/> 
+          Sign in or create an account to explore an endless library <br/> 
+          of stories, from timeless classics to modern masterpieces.<br/>
+          Begin your auditory adventure with us today!
         </p>
-        <p style={welcomeTextStyle}>
-          Join us and unlock a universe of captivating audiobooks.<br/> Sign in or create an account to 
-          explore an endless library <br/> of stories, from timeless classics to modern masterpieces. 
-          <br/>Begin your auditory adventure with us today!
-        </p>
-        <div style={{ marginTop: '80px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           <button style={buttonStyle} onClick={handleSignUp}>Sign Up</button>
           <button style={{ ...buttonStyle, backgroundColor: '#ff9800', color: 'white' }} onClick={handleLogIn}>Log In</button>
         </div>

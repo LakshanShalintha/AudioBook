@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import { getAuth, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, listAll, getDownloadURL, getMetadata, uploadBytes } from 'firebase/storage';
 
 function Profile() {
   const [name, setName] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState('');
   const [email, setEmail] = useState('');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(true);
   const navigate = useNavigate();
   const auth = getAuth();
   const db = getFirestore();
@@ -30,14 +31,44 @@ function Profile() {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        const imageUrlWithCacheBuster = `${data.imageUrl}?timestamp=${new Date().getTime()}`;
         setName(data.name || '');
-        setSelectedImage(imageUrlWithCacheBuster || null);
+
+        const cachedImageUrl = sessionStorage.getItem('profileImage');
+        if (cachedImageUrl) {
+          setSelectedImage(cachedImageUrl);
+          setLoadingImage(false);
+        } else {
+          const storageRef = ref(storage, `uploads/${currentUser.uid}/`);
+          const listResponse = await listAll(storageRef);
+
+          if (listResponse.items.length > 0) {
+            const itemsWithMetadata = await Promise.all(
+              listResponse.items.map(async (item) => {
+                const metadata = await getMetadata(item);
+                return { item, lastModified: metadata.updated || metadata.timeCreated };
+              })
+            );
+
+            itemsWithMetadata.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+
+            const latestItem = itemsWithMetadata[0].item;
+            const downloadURL = await getDownloadURL(latestItem);
+
+            const cacheBustedURL = `${downloadURL}?timestamp=${new Date().getTime()}`;
+            setSelectedImage(cacheBustedURL);
+            sessionStorage.setItem('profileImage', cacheBustedURL);
+          } else {
+            console.log('No images found in the folder');
+          }
+          setLoadingImage(false);
+        }
       } else {
         console.log('No user profile found');
+        setLoadingImage(false);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setLoadingImage(false);
     }
   };
 
@@ -45,12 +76,14 @@ function Profile() {
     const file = e.target.files[0];
     if (file) {
       try {
-        const storageRef = ref(storage, `uploads/${currentUser.uid}/profile_image.jpg`);
+        const storageRef = ref(storage, `uploads/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
-        const downloadURLWithCacheBuster = `${downloadURL}?timestamp=${new Date().getTime()}`;
-        setSelectedImage(downloadURLWithCacheBuster);
-        await saveUserProfile(downloadURLWithCacheBuster);
+        const cacheBustedURL = `${downloadURL}?timestamp=${new Date().getTime()}`;
+
+        setSelectedImage(cacheBustedURL);
+        sessionStorage.setItem('profileImage', cacheBustedURL);
+        await saveUserProfile(cacheBustedURL);
       } catch (error) {
         console.error('Error uploading image:', error);
       }
@@ -64,7 +97,7 @@ function Profile() {
         {
           name,
           email: currentUser.email,
-          imageUrl: imageUrl || selectedImage,
+          imageUrl: `uploads/${currentUser.uid}/${imageUrl.split('/').pop()}`, 
         },
         { merge: true }
       );
@@ -88,19 +121,22 @@ function Profile() {
 
   return (
     <div className="bg-gray-900 min-h-screen flex flex-col items-center">
-      <NavBar hideSearch={true} /> {/* Pass hideSearch prop */}
-      {/* Top Profile Picture Section */}
+      <NavBar hideSearch={true} profileImage={selectedImage} /> {/* Pass profileImage prop */}
       <div
         className="w-full bg-cover bg-center h-48"
         style={{ backgroundImage: 'url(https://source.unsplash.com/random)' }}
       >
         <div className="flex flex-col items-center justify-center h-full">
-          <div className="relative mt-60"> {/* Added margin-top here */}
-            <img
-              src={selectedImage || 'https://via.placeholder.com/150'}
-              alt="Profile"
-              className="rounded-full w-32 h-32 border-4 border-white object-cover"
-            />
+          <div className="relative mt-60">
+            {loadingImage ? (
+              <div className="w-32 h-32 bg-gray-300 rounded-full animate-pulse"></div>
+            ) : (
+              <img
+                src={selectedImage || 'https://via.placeholder.com/150'}
+                alt="Profile"
+                className="rounded-full w-32 h-32 border-4 border-white object-cover"
+              />
+            )}
             <label className="absolute bottom-0 right-0 bg-gray-800 p-2 rounded-full cursor-pointer">
               <FaCamera className="text-white" />
               <input
@@ -115,7 +151,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* Account Settings */}
       <div className="w-full max-w-lg bg-white shadow-md rounded-lg mt-28 p-4">
         <h2 className="text-blue-500 text-lg mb-4 text-center">Account Settings</h2>
         <div className="space-y-4">
@@ -154,8 +189,7 @@ function Profile() {
         </div>
       </div>
 
-      {/* Log Out Button */}
-      <div className="mt-10 mb-10"> {/* Adjusted margin-top for the logout button */}
+      <div className="mt-10 mb-10">
         <button
           onClick={() => setShowLogoutConfirm(true)}
           className="bg-orange-500 text-white py-2 px-8 rounded-full font-semibold shadow-md hover:bg-orange-600 transition duration-300"
@@ -164,7 +198,6 @@ function Profile() {
         </button>
       </div>
 
-      {/* Logout Confirmation Popup */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">
