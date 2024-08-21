@@ -118,7 +118,10 @@ function Gallery() {
     const queryString = new URLSearchParams({ pdfUrl: pdf.url, story: pdf.name }).toString();
     navigate(`/pdf-viewer?${queryString}`);
   };
-  
+
+  const handleFavoriteButtonClick = () => {
+    navigate('/favorite');
+  };
 
   const formatPdfName = (pdfName) => {
     return pdfName.split('/').pop().replace('.pdf', '');
@@ -128,6 +131,23 @@ function Gallery() {
     <div className="bg-gray-900 min-h-screen flex flex-col">
       {/* Include NavBar at the top */}
       <NavBar />
+
+      {/* Gallery text */}
+      <div className="font-bold mt-36 ml-64">
+        <h1 className="text-white text-5xl">
+          Gallery
+        </h1>
+      </div>
+
+      {/* Favorite button */}
+      <div className="fixed top-0 right-0 mt-36 mr-32">
+        <button 
+          className="bg-gray-600 text-white px-4 py-2 rounded"
+          onClick={handleFavoriteButtonClick}
+        >
+          Favorite
+        </button>
+      </div>
 
       <div className="p-4 flex-grow flex justify-center items-center">
         <div className="max-w-5xl w-full">
@@ -142,7 +162,7 @@ function Gallery() {
           ) : (
             <div 
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-4 justify-center"
-              style={{ marginTop: '130px' }} 
+              style={{ marginTop: '40px' }} 
             >
               {filteredPdfFiles.map((pdf) => (
                 <div 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
-import NavBar from '../../Common_Parts/Common/NavBar'; // Ensure correct import path
-import Footer from '../../Common_Parts/Common/Footer'; // Ensure correct import path
+import { useLocation, useNavigate } from 'react-router-dom'; 
+import NavBar from '../../Common_Parts/Common/NavBar'; 
+import Footer from '../../Common_Parts/Common/Footer'; 
 import { FaHeart } from 'react-icons/fa';
 import { getFirestore, doc, onSnapshot, updateDoc, arrayRemove } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -75,6 +75,13 @@ function Favorite() {
   return (
     <div className="bg-gray-900 min-h-screen flex flex-col">
       <NavBar />
+
+      <div className="fixed font-bold top-0 left-0 mt-36 ml-64">
+        <h1 className="text-white text-6xl">
+        Favorite
+        </h1>
+      </div>
+
       <div className="p-4 flex-grow flex justify-center items-center">
         <div className="max-w-5xl w-full">
           {filteredFavorites.length === 0 ? (

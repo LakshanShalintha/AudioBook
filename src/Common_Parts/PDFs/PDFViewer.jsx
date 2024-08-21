@@ -106,7 +106,7 @@ const PDFViewer = () => {
         </div>
       )}
 
-      <div className={`pt-[80px] ${isPlaying ? 'mt-52' : ''}`}> {/* Adjusted margin when music is playing */}
+      <div className={`pt-[92px] ${isPlaying ? 'mt-48' : ''}`}> {/* Adjusted margin when music is playing */}
         <iframe
           src={finalPdfUrl}
           className="w-full"
@@ -200,7 +200,7 @@ const PDFViewer = () => {
       )}
 
       {/* Speaker Button */}
-      <div className={`fixed right-8 transition-all duration-500 ${isPlaying ? 'top-80' : 'top-32'}`}>
+      <div className={`fixed right-8 transition-all duration-500 ${isPlaying ? 'top-80' : 'top-36'}`}>
         {isPlaying ? (
           <FaStop 
             onClick={handleMusicToggle}

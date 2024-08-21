@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-function NavBar({ hideSearch, profileImage }) {
+function NavBar({ hideSearch }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
-
-  console.log("Profile Image in NavBar:", profileImage); // Debugging line
+  const location = useLocation(); // Get the current location
 
   const handleHomeClick = () => {
     navigate('/', { replace: true });
@@ -58,41 +56,37 @@ function NavBar({ hideSearch, profileImage }) {
             &#9776;
           </button>
           <div
-            className="hidden md:flex items-center cursor-pointer"
+            className="hidden md:flex items-center cursor-pointer ml-16"
             onClick={handleHomeClick}
           >
             <img
               src="/images/Onboarding/onboard01.webp"
               alt="Logo"
-              style={{ width: '60px', height: '60px' }}
-              className="rounded-full border border-white mr-4"
+              style={{ width: '50px', height: '50px' }}
+              className="rounded-full border border-white mr-2"
             />
-            <span className="text-4xl font-bold">AudiRAB</span>
+            <span className="text-5xl font-bold -mt-1">AudiRAB</span>
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center" style={{ marginLeft: '400px' }}>
-          <ul className="hidden md:flex space-x-4">
+        <div className="flex-1 font-bold flex justify-center" style={{ marginLeft: '600px' }}>
+          <ul className="hidden md:flex space-x-5">
             <li>
               <Link
                 to="/home"
-                className={`no-underline focus:outline-none ${location.pathname === '/home' ? 'text-orange-300' : ''}`}
+                className={`no-underline focus:outline-none text-[18px] ${
+                  location.pathname === '/home' ? 'text-orange-300' : ''
+                }`}
               >
                 Home
               </Link>
             </li>
             <li>
               <Link
-                to="/favorite"
-                className={`no-underline focus:outline-none ${location.pathname === '/favorite' ? 'text-orange-300' : ''}`}
-              >
-                Favorite
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/new_story"
-                className={`no-underline focus:outline-none ${location.pathname === '/new_story' ? 'text-orange-300' : ''}`}
+                className={`no-underline focus:outline-none text-[18px] ${
+                  location.pathname === '/new_story' ? 'text-orange-300' : ''
+                }`}
               >
                 Create
               </Link>
@@ -100,15 +94,29 @@ function NavBar({ hideSearch, profileImage }) {
             <li>
               <Link
                 to="/gallery"
-                className={`no-underline focus:outline-none ${location.pathname === '/gallery' ? 'text-orange-300' : ''}`}
+                className={`no-underline focus:outline-none text-[18px] ${
+                  location.pathname === '/gallery' ? 'text-orange-300' : ''
+                }`}
               >
                 Gallery
               </Link>
             </li>
             <li>
               <Link
+                to="/about"
+                className={`no-underline focus:outline-none text-[18px] ${
+                  location.pathname === '/about' ? 'text-orange-300' : ''
+                }`}
+              >
+                About
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/profile"
-                className={`no-underline focus:outline-none ${location.pathname === '/profile' ? 'text-orange-300' : ''}`}
+                className={`no-underline focus:outline-none text-[18px] ${
+                  location.pathname === '/profile' ? 'text-orange-300' : ''
+                }`}
               >
                 Profile
               </Link>
@@ -116,10 +124,10 @@ function NavBar({ hideSearch, profileImage }) {
           </ul>
         </div>
 
-        <div className="flex items-center space-x-4 ml-auto md:ml-0">
+        <div className="flex items-center space-x-4 ml-auto md:ml-0 mr-16">
           {!hideSearch && (
             <button
-              className="text-2xl -ml-52 mr-52"
+              className="text-2xl ml-2"
               style={{ fontSize: '24px' }}
               onClick={toggleSearch}
             >
@@ -128,15 +136,37 @@ function NavBar({ hideSearch, profileImage }) {
           )}
         </div>
 
-        {/* Profile Image Circle in the Right Corner */}
-        <Link to="/profile" className="absolute top-0 right-0 mt-8 mr-20">
-          <div className="bg-white rounded-full w-9 h-9 overflow-hidden cursor-pointer">
-            <img src={profileImage || 'https://via.placeholder.com/150'} alt="Profile" className="w-full h-full object-cover" />
-          </div>
-        </Link>
-
         <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
       </nav>
+
+      <div
+        className={`fixed top-20 left-0 right-0 z-60 p-2 bg-gray-800 transition-all duration-300 ${
+          isSearchOpen ? 'opacity-100 max-h-screen' : 'opacity-0 max-h-0'
+        }`}
+        style={{ zIndex: 1000 }}
+      >
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center bg-white rounded-full mx-auto transition-all duration-300"
+          style={{ maxWidth: '90%', width: '100%', maxWidth: '600px', overflow: 'hidden' }}
+        >
+          <input
+            type="text"
+            placeholder="Search ..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className={`w-full px-4 py-2 rounded-full focus:outline-none transition-all duration-300 ${
+              isSearchOpen ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+          <button
+            type="submit"
+            className={`text-gray-600 px-4 transition-all duration-300 ${isSearchOpen ? 'opacity-100' : 'opacity-0'}`}
+          >
+            <i className="fas fa-search"></i>
+          </button>
+        </form>
+      </div>
     </>
   );
 }
