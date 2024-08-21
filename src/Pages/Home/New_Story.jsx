@@ -4,17 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebase';
 import jsPDF from "jspdf";
+import 'jspdf-autotable';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import Footer from '../../Common_Parts/Common/Footer';
-import speakStory from '../../Common_Parts/API_Parts/APIServices'; // Import the speech service
-import { FaVolumeUp } from 'react-icons/fa'; // Import the speech icon
+import speakStory from '../../Common_Parts/API_Parts/APIServices';
+import { FaVolumeUp } from 'react-icons/fa';
+
+import onboardImage from '/images/Onboarding/onboard01.webp';
 
 const New_Story = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [showStopButton, setShowStopButton] = useState(false);
-  const [story, setStory] = useState(null); // State to store the generated story
+  const [story, setStory] = useState(null);
   const navigate = useNavigate();
   const abortControllerRef = useRef(null);
 
@@ -22,9 +25,11 @@ const New_Story = () => {
     "AIzaSyBSjI-d3vJnbEcADHl_NWnadU_KB7NXy2I"
   );
 
-  const validateWord = (word) => {
+  const validateWord = (phrase) => {
+    const words = phrase.split(" ");
+    if (words.length < 1 || words.length > 5) return false;
     const regex = /^[A-Za-z]{3,}$/;
-    return regex.test(word);
+    return words.every(word => regex.test(word));
   };
 
   const generateStory = async () => {
@@ -42,7 +47,7 @@ const New_Story = () => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const prompt = `Write a long imaginative audio book story for relax mined, give that perfect and like real story in 20000 words based on the word: ${input}. The story should be engaging and suitable for all ages.`;
+        const prompt = `Write a long imaginative audio book story for relax mined, give that perfect and like real story in more than 20000 words based on the phrase: ${input}. The story should be engaging and suitable for all ages.`;
 
         const result = await model.generateContent(prompt, { signal });
         let storyText = result.response.text();
@@ -51,7 +56,7 @@ const New_Story = () => {
         storyText = storyText.replace(/\*/g, "");
         console.log("Generated Story:", storyText);
 
-        setStory(storyText); // Save the story to state
+        setStory(storyText);
 
         const [rawSubtopic, ...restOfStory] = storyText.split('\n\n');
         const subtopic = rawSubtopic.replace(/^##\s*/, ''); 
@@ -59,37 +64,88 @@ const New_Story = () => {
 
         const doc = new jsPDF();
 
-        doc.setFontSize(24);
-        doc.setTextColor(0, 0, 0); 
-        doc.text(input.toUpperCase(), 20, 30);
+        // Set gray background color for the entire page
+        doc.setFillColor(0, 0, 0); // RGB for gray
+        doc.rect(0, 0, doc.internal.pageSize.width, doc.internal.pageSize.height, 'F'); // Fill the entire page
 
-        doc.setFontSize(18);
-        doc.setTextColor(255, 0, 0); 
-        doc.text(subtopic, 20, 50);
+        // Define margins and image dimensions
+        const marginLeft = 2;
+        const marginRight = 2;
+        const marginTop = 2;
+        const imgWidth = 20;
+        const imgHeight = 20;
 
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0); 
+        // Calculate image position based on margins
+        const xPos = doc.internal.pageSize.width - imgWidth - marginRight; // X position for the right corner
+        const yPos = marginTop; // Y position for the top
 
-        let yOffset = 70;
+        // Add the image to the PDF at the top right corner
+        doc.addImage(onboardImage, 'webp', xPos, yPos, imgWidth, imgHeight);
+
+        doc.setFont("helvetica", "bold"); // Set the font to Helvetica bold
+        doc.setFontSize(44);
+        doc.setTextColor(255, 255, 255); // Set text color to white
+
+        // Calculate the text width
+        const textWidth = doc.getTextWidth(input.toUpperCase());
+
+        // Calculate the position to center the text
+        const centerX = (doc.internal.pageSize.width - textWidth) / 2;
+
+        // Add the centered, bold, white text to the PDF
+        doc.text(input.toUpperCase(), centerX, yPos + imgHeight + 20);
+        // Adjust text position
+
+        const adjustedMarginLeft = marginLeft + 15; // Increase marginLeft by 10 units for additional left margin
+        doc.setFont("helvetica", "bold"); 
+        doc.setFontSize(22);
+        doc.setTextColor(255, 213, 128);   //255, 195, 0/255, 191, 0
+        doc.text(subtopic, adjustedMarginLeft, yPos + imgHeight + 40);
+
+        //doc.setFont("helvetica", "bold"); 
+        doc.setFontSize(14);
+        doc.setTextColor(255, 255, 255); 
+        
+
+        const paragraphMarginLeft = marginLeft + 15; // Add additional left margin for paragraphs
+        const paragraphMarginRight = marginRight + 15; // Add additional right margin for paragraphs
+
+        let yOffset = yPos + imgHeight + 60;
         const pageHeight = doc.internal.pageSize.height;
+        const lineHeight = 7;
         const marginBottom = 20;
-
+      
         paragraphs.forEach((paragraph) => {
-            const textLines = doc.splitTextToSize(paragraph, 180);
+            // Adjust the width available for text by subtracting both margins
+            const availableWidth = doc.internal.pageSize.width - paragraphMarginLeft - paragraphMarginRight;
+            const textLines = doc.splitTextToSize(paragraph, availableWidth);
+
             textLines.forEach((line) => {
-                if (yOffset > pageHeight - marginBottom) {
+                if (yOffset + lineHeight > pageHeight - marginBottom) {
                     doc.addPage();
-                    yOffset = 20;
+                    // Add gray background for the new page
+                    doc.setFillColor(0, 0, 0); // RGB for black
+                    doc.rect(0, 0, doc.internal.pageSize.width, doc.internal.pageSize.height, 'F');
+
+                    yOffset = marginTop + imgHeight + 20; // Start new page with margin top
+                    // Optionally, add the image to each new page
+                    doc.addImage(onboardImage, 'webp', xPos, marginTop, imgWidth, imgHeight);
                 }
-                doc.text(line, 20, yOffset);
-                yOffset += 10;
+                doc.text(line, paragraphMarginLeft, yOffset); // Use paragraphMarginLeft here
+                yOffset += lineHeight;
             });
 
-            yOffset += 10;
+            yOffset += lineHeight; // Add extra space between paragraphs
 
-            if (yOffset > pageHeight - marginBottom) {
+            if (yOffset + lineHeight > pageHeight - marginBottom) {
                 doc.addPage();
-                yOffset = 20;
+                // Add gray background for the new page
+                doc.setFillColor(64, 64, 64); // RGB for gray
+                doc.rect(0, 0, doc.internal.pageSize.width, doc.internal.pageSize.height, 'F');
+
+                yOffset = marginTop + imgHeight + 20;
+                // Optionally, add the image to each new page
+                doc.addImage(onboardImage, 'webp', xPos, marginTop, imgWidth, imgHeight);
             }
         });
 
@@ -130,7 +186,6 @@ const New_Story = () => {
     }
 };
 
-
   const handleStop = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -168,7 +223,6 @@ const New_Story = () => {
     }
   };
 
-
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#112233] to-[#000000] text-center text-white">
       <NavBar hideSearch={true} />
@@ -192,7 +246,7 @@ const New_Story = () => {
                 disabled={!loading}
                 style={{ fontSize: '20px', background: 'none', border: 'none', padding: '0' }}
               >
-                &#x25A0; {/* Black square icon representing the stop button */}
+                &#x25A0;
               </button>
             </div>
           )}
@@ -241,7 +295,6 @@ const New_Story = () => {
           />
         </label>
 
-        {/* Conditionally render the speech button */}
         {story && (
           <div className="mt-8">
             <button

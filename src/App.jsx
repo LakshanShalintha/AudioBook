@@ -21,6 +21,9 @@ import KidsFamily from './Common_Parts/Categories/Kids_Family';
 import LiteratureFiction from './Common_Parts/Categories/Literature_Fiction';
 import PersonalGrowth from './Common_Parts/Categories/Personal_Growth';
 import Romance from './Common_Parts/Categories/Romance';
+import AboutUs from './Pages/Home/About';
+import Reviews from './Common_Parts/Account/Reviews';
+
 
 
 function App() {
@@ -47,6 +50,8 @@ function App() {
         <Route path="/Literature_Fiction" element={<LiteratureFiction />} />
         <Route path="/Personal_Growth" element={<PersonalGrowth />} />
         <Route path="/Romance" element={<Romance />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/reviews" element={<Reviews />} />
       </Routes>
     </Router>
   );

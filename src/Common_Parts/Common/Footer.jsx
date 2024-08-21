@@ -5,7 +5,7 @@ function Footer() {
     <footer className="bg-gray-800 text-white py-6 mt-10">
       <div className="container mx-auto flex flex-wrap justify-between">
         <div className="w-full md:w-1/4 mb-4 md:mb-0">
-          <h3 className="text-lg font-semibold">Contact</h3>
+          <h3 className="text-lg font-semibold ">Contact</h3>
           <p>011-23231230 / 077-2323112</p>
           <p>
             E-mail: <a href="mailto:audirab123@gmail.com" className="no-underline">audirab123@gmail.com</a>
@@ -15,10 +15,11 @@ function Footer() {
           <h3 className="text-lg font-semibold">Quick Links</h3>
           <ul className="list-disc list-inside text-white">
             <li><a href="home" className="no-underline">Home</a></li>
-            <li><a href="favorite" className="no-underline">Favorite</a></li>
-            <li><a href="/new_story" className="no-underline">Create</a></li>
+            <li><a href="new_story" className="no-underline">Create</a></li>
             <li><a href="gallery" className="no-underline">Gallery</a></li>
             <li><a href="profile" className="no-underline">Profile</a></li>
+            <li><a href="about" className="no-underline">About</a></li>
+            <li><a href="reviews" className="no-underline">Reviews</a></li>
           </ul>
         </div>
         <div className="w-full md:w-1/4 mb-4 md:mb-0">

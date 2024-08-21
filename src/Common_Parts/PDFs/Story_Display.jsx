@@ -4,6 +4,8 @@ import NavBar from '../Common/NavBar';
 import Footer from '../Common/Footer';
 import { FaVolumeUp, FaStop, FaTimes } from "react-icons/fa"; // Import FaTimes icon
 import MusicVisualizer from './MusicVisualizer'; // Import the visualizer component
+import handleDownload from "../../Common_Parts/PDFs/handleDownload";
+// Import the handleDownload function
 
 const Story_Display = () => {
   const location = useLocation();
@@ -23,6 +25,7 @@ const Story_Display = () => {
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
+  const [message, setMessage] = useState(""); // For showing download status messages
 
   const utteranceRef = useRef(null);
   const audioRef = useRef(null);
@@ -242,6 +245,23 @@ const Story_Display = () => {
             <p key={index} className="text-[18px] mb-4">{paragraph}</p>
           ))}
         </div>
+        
+        {/* Download Button */}
+        <div className="mt-8">
+          <button
+            className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            onClick={() => handleDownload(input, paragraphs, setMessage)}
+          >
+            Download PDF
+          </button>
+        </div>
+
+        {/* Message Display */}
+        {message && (
+          <div className="bg-yellow-500 text-black py-2 px-4 rounded-lg mt-4">
+            {message}
+          </div>
+        )}
       </div>
       
       <Footer />
