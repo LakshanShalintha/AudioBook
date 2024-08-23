@@ -69,7 +69,7 @@ function NavBar({ hideSearch }) {
           </div>
         </div>
 
-        <div className="flex-1 font-bold flex justify-center" style={{ marginLeft: '600px' }}>
+        <div className="flex-1 font-bold flex justify-center" style={{ marginLeft: '500px' }}>
           <ul className="hidden md:flex space-x-5">
             <li>
               <Link
@@ -109,6 +109,16 @@ function NavBar({ hideSearch }) {
                 }`}
               >
                 About
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/reviews"
+                className={`no-underline focus:outline-none text-[18px] ${
+                  location.pathname === '/reviews' ? 'text-orange-300' : ''
+                }`}
+              >
+                Review
               </Link>
             </li>
             <li>
