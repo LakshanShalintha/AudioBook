@@ -21,13 +21,16 @@ function Sidebar({ isOpen, onClose }) {
           <Link to="/home" className="hover:underline">Home</Link>
         </li>
         <li>
-          <Link to="/favorite" className="hover:underline">Favorite</Link>
+          <Link to="/new_story" className="hover:underline">Create</Link>
         </li>
         <li>
-          <Link to="/generate-story" className="hover:underline">Generate_Story</Link>
+        <Link to="/gallery" className="hover:underline">Gallery</Link>
         </li>
         <li>
-          <Link to="/gallery" className="hover:underline">Gallery</Link>
+          <Link to="/about" className="hover:underline">About</Link>
+        </li>
+        <li>
+          <Link to="/reviews" className="hover:underline">Reviews</Link>
         </li>
         <li>
           <Link to="/profile" className="hover:underline">Profile</Link>

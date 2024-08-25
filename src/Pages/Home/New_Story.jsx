@@ -8,7 +8,7 @@ import 'jspdf-autotable';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import Footer from '../../Common_Parts/Common/Footer';
 import speakStory from '../../Common_Parts/API_Parts/APIServices';
-import { FaVolumeUp } from 'react-icons/fa';
+import { FaVolumeUp, FaTimes } from 'react-icons/fa'; // Import FaTimes icon
 
 import onboardImage from '/images/Onboarding/onboard01.webp';
 
@@ -18,6 +18,8 @@ const New_Story = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showStopButton, setShowStopButton] = useState(false);
   const [story, setStory] = useState(null);
+  const [summary, setSummary] = useState(null); // State to store the summary
+  const [languagePopup, setLanguagePopup] = useState(false);
   const navigate = useNavigate();
   const abortControllerRef = useRef(null);
 
@@ -32,12 +34,7 @@ const New_Story = () => {
     return words.every(word => regex.test(word));
   };
 
-  const generateStory = async () => {
-    if (!validateWord(input)) {
-        setShowPopup(true);
-        return;
-    }
-
+  const generateStory = async (language) => {
     setLoading(true);
     setShowStopButton(true);
 
@@ -47,16 +44,26 @@ const New_Story = () => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const prompt = `Write a long imaginative audio book story for relax mined, give that perfect and like real story in more than 20000 words based on the phrase: ${input}. The story should be engaging and suitable for all ages.`;
+        const prompt = `Write a long imaginative audio book story for relax mind, give that perfect and like real story in more than 20000 words based on the phrase and the story should real wordl story: ${input}. The story should be engaging and suitable for all ages. Please generate the story in ${language}.`;
 
         const result = await model.generateContent(prompt, { signal });
         let storyText = result.response.text();
 
         // Remove star marks (*) from the story text
         storyText = storyText.replace(/\*/g, "");
+        
+        // Print the generated story to the console
         console.log("Generated Story:", storyText);
 
         setStory(storyText);
+
+        // Generate the summary
+        const summaryPrompt = `Please summarize the following story: ${storyText}`;
+        const summaryResult = await model.generateContent(summaryPrompt, { signal });
+        const storySummary = summaryResult.response.text();
+        setSummary(storySummary);
+
+        console.log("Story Summary:", storySummary);
 
         const [rawSubtopic, ...restOfStory] = storyText.split('\n\n');
         const subtopic = rawSubtopic.replace(/^##\s*/, ''); 
@@ -149,32 +156,34 @@ const New_Story = () => {
             }
         });
 
-        const pdfBlob = doc.output("blob");
+        if (language === 'English') { // Only save if the language is English
+            const pdfBlob = doc.output("blob");
 
-        const pdfName = `${input}.pdf`;
-        const storageRef = ref(storage, `stories/${pdfName}`);
-        const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
+            const pdfName = `${input}.pdf`;
+            const storageRef = ref(storage, `stories/${pdfName}`);
+            const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
 
-        uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-            },
-            (error) => {
-                console.error("Error uploading file:", error);
-            },
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    window.open(downloadURL, '_blank');
-                });
-            }
-        );
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                },
+                (error) => {
+                    console.error("Error uploading file:", error);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        window.open(downloadURL, '_blank');
+                    });
+                }
+            );
+        }
 
         setLoading(false);
         setShowStopButton(false);
-        navigate("/display-story", { state: { story: storyText, input } });
+        navigate("/display-story", { state: { story: storyText, input, summary: storySummary } });
     } catch (error) {
         if (error.name === 'AbortError') {
             console.log("Story generation process was aborted");
@@ -223,6 +232,19 @@ const New_Story = () => {
     }
   };
 
+  const handleGenerateClick = () => {
+    if (!validateWord(input)) {
+      setShowPopup(true);
+      return;
+    }
+    setLanguagePopup(true);
+  };
+
+  const selectLanguage = (language) => {
+    setLanguagePopup(false);
+    generateStory(language);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#112233] to-[#000000] text-center text-white">
       <NavBar hideSearch={true} />
@@ -254,7 +276,7 @@ const New_Story = () => {
 
         <button
           className="bg-orange-500 text-white rounded-lg px-4 py-2 mt-6 text-[16px]"
-          onClick={generateStory}
+          onClick={handleGenerateClick}
           disabled={loading}
         >
           {loading ? "Generating..." : "Generate Story"}
@@ -270,6 +292,40 @@ const New_Story = () => {
               >
                 Close
               </button>
+            </div>
+          </div>
+        )}
+
+        {languagePopup && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-gray-400 p-6 rounded-lg shadow-lg relative">
+              <button
+                className="absolute top-0 right-0 mt-2 mr-2 text-black"
+                onClick={() => setLanguagePopup(false)}
+              >
+                <FaTimes size={20} />
+              </button>
+              <p className="text-black text-[24px] font-bold mb-4">Select language?</p>
+              <div className="flex justify-between">
+                <button
+                  className="bg-orange-400 text-white rounded-lg px-4 py-2 text-[16px] mr-2"
+                  onClick={() => selectLanguage('English')}
+                >
+                  English
+                </button>
+                <button
+                  className="bg-orange-400 text-white rounded-lg px-4 py-2 text-[16px] mr-2"
+                  onClick={() => selectLanguage('Sinhala')}
+                >
+                  Sinhala
+                </button>
+                <button
+                  className="bg-orange-400 text-white rounded-lg px-4 py-2 text-[16px]"
+                  onClick={() => selectLanguage('Tamil')}
+                >
+                  Tamil
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -295,16 +351,21 @@ const New_Story = () => {
           />
         </label>
 
+
         {story && (
-          <div className="mt-8">
-            <button
-              className="text-white bg-blue-500 p-2 rounded-full"
-              onClick={() => speakStory(story)}
-            >
-              <FaVolumeUp size={24} />
-            </button>
+          <div className="mt-8 text-left">
+            <h3 className="text-[28px] font-bold mb-4">Story:</h3>
+            <p className="text-[18px]">{story}</p>
+
+            {summary && (
+              <>
+                <h3 className="text-[28px] font-bold mt-8 mb-4">Summary:</h3>
+                <p className="text-[18px]">{summary}</p>
+              </>
+            )}
           </div>
         )}
+
       </div>
 
       <Footer />

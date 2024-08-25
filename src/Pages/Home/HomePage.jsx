@@ -145,19 +145,32 @@ function HomePage() {
         </p>
         <div className="relative overflow-hidden">
           <div className="flex animate-scroll-right">
-            <img src="/images/Home/AudiRAB/Ghost.webp" alt="AudiRAB 1" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Cat.webp" alt="AudiRAB 2" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Moon.webp" alt="AudiRAB 3" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Tree.webp" alt="AudiRAB 4" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/World.webp" alt="AudiRAB 5" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Sea.webp" alt="AudiRAB 6" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            {/* Duplicate images to create infinite loop */}
-            <img src="/images/Home/AudiRAB/Ghost.webp" alt="AudiRAB 1" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Cat.webp" alt="AudiRAB 2" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Moon.webp" alt="AudiRAB 3" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Tree.webp" alt="AudiRAB 4" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/World.webp" alt="AudiRAB 5" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
-            <img src="/images/Home/AudiRAB/Sea.webp" alt="AudiRAB 6" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/HomeStories/Alone.jpeg" alt="AudiRAB 1" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/DLB.jpeg" alt="AudiRAB 2" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/HAS.jpeg" alt="AudiRAB 3" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/AudiRAB/Tree.webp" alt="AudiRAB 4" className="w-[100px] h-[150px] lg:w-[130px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Hell.jpeg" alt="AudiRAB 5" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/history.jpeg" alt="AudiRAB 6" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/IOE.jpeg" alt="AudiRAB 7" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Killer.jpeg" alt="AudiRAB 8" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/lincon.jpeg" alt="AudiRAB 9" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/love.jpeg" alt="AudiRAB 10" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/magic.jpeg" alt="AudiRAB 11" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Ghost.webp" alt="AudiRAB 12" className="w-[100px] h-[150px] lg:w-[120px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Matilda.jpeg" alt="AudiRAB 13" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Memory.jpeg" alt="AudiRAB 14" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/monstrous.jpg" alt="AudiRAB 15" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/World.webp" alt="AudiRAB 16" className="w-[110px] h-[150px] lg:w-[120px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/motivate.jpg" alt="AudiRAB 17" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/prince.jpeg" alt="AudiRAB 18" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Stories/Sophie.png" alt="AudiRAB 19" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Soul.jpg" alt="AudiRAB 20" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/The Moon.png" alt="AudiRAB 21" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/The past is rising.jpeg" alt="AudiRAB 22" className="w-[150px] h-[150px] lg:w-[200px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/TLW.jpeg" alt="AudiRAB 23" className="w-[150px] h-[100px] lg:w-[120px] lg:h-[200px] mx-4 shadow-custom" />
+            <img src="/images/Home/Stories/Sea.webp" alt="AudiRAB 24" className="w-[100px] h-[150px] lg:w-[120px] lg:h-[200px] mx-4 shadow-custom" />
+
+            
           </div>
         </div>
       </div>

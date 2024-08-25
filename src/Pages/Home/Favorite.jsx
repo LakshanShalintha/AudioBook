@@ -5,16 +5,16 @@ import Footer from '../../Common_Parts/Common/Footer';
 import { FaHeart } from 'react-icons/fa';
 import { getFirestore, doc, onSnapshot, updateDoc, arrayRemove } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getStorage, ref, getDownloadURL } from 'firebase/storage'; // Import Firebase Storage methods
+import { getStorage, ref, getDownloadURL } from 'firebase/storage'; 
 
 function Favorite() {
   const [favorites, setFavorites] = useState([]);
   const [filteredFavorites, setFilteredFavorites] = useState([]);
   const auth = getAuth();
   const db = getFirestore();
-  const storage = getStorage(); // Initialize storage
+  const storage = getStorage(); 
   const location = useLocation();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const listenToFavorites = () => {
@@ -22,27 +22,31 @@ function Favorite() {
       if (user) {
         const docRef = doc(db, `favorites/${user.uid}`);
 
-        // Set up a real-time listener to sync favorites across devices
         return onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
             setFavorites(docSnap.data().pdfUrls || []);
+            setFilteredFavorites(docSnap.data().pdfUrls || []); 
           }
         });
       }
     };
 
-    listenToFavorites(); // Listen to real-time updates
+    const unsubscribe = listenToFavorites(); 
+
+    return () => {
+      unsubscribe(); 
+    };
   }, [auth, db]);
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
-    const searchTerm = query.get('search')?.toLowerCase() || ''; // Convert search term to lowercase
+    const searchTerm = query.get('search')?.toLowerCase() || ''; 
 
     const filtered = favorites.filter(pdfName =>
-      pdfName.toLowerCase().includes(searchTerm) // Match the search term in the PDF name
+      pdfName.toLowerCase().includes(searchTerm) 
     );
     setFilteredFavorites(filtered);
-  }, [favorites, location.search]); // Re-run the effect when favorites or location.search changes
+  }, [favorites, location.search]);
 
   const removeFavorite = async (pdfName) => {
     const user = auth.currentUser;
@@ -97,16 +101,18 @@ function Favorite() {
                 <div 
                   key={pdfName} 
                   className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-950 rounded-lg text-white relative cursor-pointer"
-                  onClick={() => handlePdfClick(pdfName)} // Handle PDF click
+                  onClick={() => handlePdfClick(pdfName)} 
                 >
                   <span className="truncate">{formatPdfName(pdfName)}</span>
                   <FaHeart 
-                    className="absolute top-2 right-2 cursor-pointer text-red-500"
+                   className="absolute top-2 right-2 cursor-pointer text-red-500"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering PDF click when removing favorite
+                      e.stopPropagation(); 
                       removeFavorite(pdfName);
                     }}
+                    style={{ fontSize: '20px' }} 
                   />
+
                 </div>
               ))}
             </div>

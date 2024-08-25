@@ -102,7 +102,7 @@ function Reviews({ userName }) {
 
   const handleRatingSubmit = async () => {
     const newCommentItem = {
-      name: userName || '',
+      name: userName || 'Shalintha',
       rating: selectedRating,
       description: comment,
       timestamp: new Date(),

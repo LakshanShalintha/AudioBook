@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
-function Details({ imageUrl, onUpdateName }) {
+function Details({ onUpdateName, imageUrl }) {
   const [nameInput, setNameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [message, setMessage] = useState('');
