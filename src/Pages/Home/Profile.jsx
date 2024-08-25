@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCamera } from 'react-icons/fa';
+import { FaUser, FaLock, FaUserCog } from 'react-icons/fa'; // Import necessary icons
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import { getAuth, signOut } from 'firebase/auth';
@@ -138,7 +138,7 @@ function Profile() {
               />
             )}
             <label className="absolute bottom-0 right-0 bg-gray-800 p-2 rounded-full cursor-pointer">
-              <FaCamera className="text-white" />
+              <FaUser className="text-white" />
               <input
                 type="file"
                 accept="image/*"
@@ -158,7 +158,7 @@ function Profile() {
             className="flex items-center space-x-4 p-6 bg-gray-200 rounded-lg h-20 w-full cursor-pointer"
             onClick={() => navigate('/details')}
           >
-            <FaCamera className="text-gray-600 text-xl" />
+            <FaUser className="text-gray-600 text-xl" />
             <div>
               <p className="text-gray-800 font-semibold text-lg">Profile</p>
               <p className="text-gray-600">Manage profile</p>
@@ -169,7 +169,7 @@ function Profile() {
             className="flex items-center space-x-4 p-6 bg-gray-200 rounded-lg h-20 w-full cursor-pointer"
             onClick={() => navigate('/password')}
           >
-            <FaCamera className="text-gray-600 text-xl" />
+            <FaLock className="text-gray-600 text-xl" />
             <div>
               <p className="text-gray-800 font-semibold text-lg">Password</p>
               <p className="text-gray-600">Change Password</p>
@@ -180,7 +180,7 @@ function Profile() {
             className="flex items-center space-x-4 p-6 bg-gray-200 rounded-lg h-20 w-full cursor-pointer"
             onClick={() => navigate('/setting')}
           >
-            <FaCamera className="text-gray-600 text-xl" />
+            <FaUserCog className="text-gray-600 text-xl" />
             <div>
               <p className="text-gray-800 font-semibold text-lg">Account</p>
               <p className="text-gray-600">Manage your account</p>
@@ -199,9 +199,9 @@ function Profile() {
       </div>
 
       {showLogoutConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-gray-900 text-lg font-semibold mb-4">Do you want to logout the account?</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 mt-28">
+          <div className="bg-black p-6 rounded-lg shadow-lg">
+            <h2 className="text-white text-lg font-semibold mb-4">Do you want to logout the account?</h2>
             <div className="flex justify-around mt-4">
               <button
                 onClick={handleNo}

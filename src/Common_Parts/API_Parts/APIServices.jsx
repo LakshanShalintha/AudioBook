@@ -4,8 +4,14 @@ const API_KEY = 'af6679bc4bmsh9b5d5c0d3dde824p1de68ejsndae170e5101c';
 const API_HOST = 'cloudlabs-text-to-speech.p.rapidapi.com';
 const API_URL = 'https://cloudlabs-text-to-speech.p.rapidapi.com/synthesize';
 
-const speakStory = async (text, voiceCode = 'en-US-4') => { // Default to a known working voice code
+// Define available voices
+const voices = {
+    male: 'en-US-3',
+    female: 'en-US-1'
+};
+const speakStory = async (text, voiceType = 'male') => { // Default to male voice
     try {
+        const voiceCode = voices[voiceType] || voices.male; // Fallback to male if the provided type is invalid
         const response = await axios.post(API_URL, {
             text: text,
             voice: voiceCode, // Use the selected voice code
@@ -29,3 +35,5 @@ const speakStory = async (text, voiceCode = 'en-US-4') => { // Default to a know
 };
 
 export default speakStory;
+
+

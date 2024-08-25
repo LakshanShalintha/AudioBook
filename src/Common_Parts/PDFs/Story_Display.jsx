@@ -1,15 +1,14 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import NavBar from '../Common/NavBar';
 import Footer from '../Common/Footer';
 import { FaVolumeUp, FaStop, FaTimes } from "react-icons/fa"; // Import FaTimes icon
 import MusicVisualizer from './MusicVisualizer'; // Import the visualizer component
 import handleDownload from "../../Common_Parts/PDFs/handleDownload";
-// Import the handleDownload function
 
 const Story_Display = () => {
   const location = useLocation();
-  const { story, input } = location.state || { story: "No story available", input: "Your Story" };
+  const { story, input, summary } = location.state || { story: "No story available", input: "Your Story", summary: "No summary available" };
 
   const [rawSubtopic, ...restOfStory] = story.split('\n\n');
   const subtopic = rawSubtopic.replace(/^##\s*/, '');
@@ -25,7 +24,8 @@ const Story_Display = () => {
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
-  const [message, setMessage] = useState(""); // For showing download status messages
+  const [message, setMessage] = useState(""); 
+  const [gender, setGender] = useState("Male"); 
 
   const utteranceRef = useRef(null);
   const audioRef = useRef(null);
@@ -224,6 +224,18 @@ const Story_Display = () => {
             }} 
           />
         )}
+
+        {/* Gender Selection */}
+        <div className="mt-4">
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="bg-gray-700 text-white py-2 px-1 rounded-lg"
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
       </div>
       
       <div className={`flex-grow py-20 px-4 md:px-20 lg:px-60 transition-all duration-500 ${isSpeaking ? 'mt-40' : 'mt-0'}`}>
@@ -245,6 +257,14 @@ const Story_Display = () => {
             <p key={index} className="text-[18px] mb-4">{paragraph}</p>
           ))}
         </div>
+        
+        {/* Display the summary under the story */}
+        {summary && (
+          <div className="mt-8 bg-gray-200 text-black p-6 rounded-lg shadow-lg text-left">
+            <h3 className="text-[28px] font-bold mb-4">Summary:</h3>
+            <p className="text-[18px]">{summary}</p>
+          </div>
+        )}
         
         {/* Download Button */}
         <div className="mt-8">

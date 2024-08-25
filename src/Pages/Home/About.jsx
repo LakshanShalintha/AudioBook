@@ -12,8 +12,8 @@ function About() {
         <div
           className="flex items-center justify-center bg-gray-500"
           style={{
-            width: '420px', // Set width of the large circle
-            height: '420px', // Set height of the large circle
+            width: '400px', // Set width of the large circle
+            height: '400px', // Set height of the large circle
             borderRadius: '50%', // Make the container a circle
             zIndex: '20', // Ensure it's above other elements
           }}
