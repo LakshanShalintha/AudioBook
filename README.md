@@ -40,15 +40,14 @@ Ready to set up the web app locally? Follow these steps:
    ```
 4. **Set Up Environment Variables:**
    Create a .env file at the root of the project and configure your Firebase keys and other environment settings.
-   ```bash
-REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
    
-   ```
+   -REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+   -REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+   -REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
+   -REACT_APP_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+   -REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+   -REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
+   
 6. **Run the App:**
  ```bash
      npm start
@@ -75,9 +74,9 @@ REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
    ```
 3. Add Tailwind Directives:
    ```bash
-     @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
 
    ```
 
