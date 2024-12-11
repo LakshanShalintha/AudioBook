@@ -24,9 +24,8 @@ import Romance from './Common_Parts/Categories/Romance';
 import AboutUs from './Pages/Home/About';
 import Reviews from './Common_Parts/Account/Reviews';
 
-
-
 function App() {
+
   return (
     <Router>
       <Routes>

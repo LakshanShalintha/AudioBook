@@ -95,7 +95,7 @@ function Favorite() {
           ) : (
             <div 
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-4 justify-center"
-              style={{ marginTop: '130px' }} 
+              style={{ marginTop: '250px' }} 
             >
               {filteredFavorites.map((pdfName) => (
                 <div 
