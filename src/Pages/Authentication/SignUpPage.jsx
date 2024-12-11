@@ -141,7 +141,6 @@ export default function SignUpPage() {
         <div style={inputContainerStyle}>
           <i className="fas fa-lock" style={iconStyle}></i>
           <input
-            type="password"
             name="password"
             placeholder="Password"
             style={inputStyle}
@@ -153,7 +152,6 @@ export default function SignUpPage() {
         <div style={inputContainerStyle}>
           <i className="fas fa-lock" style={iconStyle}></i>
           <input
-            type="password"
             name="confirmPassword"
             placeholder="Confirm Password"
             style={inputStyle}

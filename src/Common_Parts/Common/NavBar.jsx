@@ -158,7 +158,7 @@ function NavBar({ hideSearch }) {
         <form
           onSubmit={handleSearch}
           className="flex items-center bg-white rounded-full mx-auto transition-all duration-300"
-          style={{ maxWidth: '90%', width: '100%', maxWidth: '600px', overflow: 'hidden' }}
+          style={{ maxWidth: '90%', width: '100%', overflow: 'hidden' }}
         >
           <input
             type="text"
