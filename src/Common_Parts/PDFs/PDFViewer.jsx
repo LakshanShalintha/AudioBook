@@ -1,234 +1,443 @@
-import React, { useState, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { FaVolumeUp, FaStop, FaTimes } from 'react-icons/fa';
+// eslint-disable-next-line no-unused-vars
+import React, {useEffect, useRef, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {FaStop, FaTimes, FaVolumeUp} from 'react-icons/fa';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import MusicVisualizer from './MusicVisualizer';
+import * as pdfjsLib from "pdfjs-dist/webpack";
+import {getDownloadURL, getStorage, ref} from "firebase/storage";
+
+// Set worker source directly from a CDN
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
 
 const PDFViewer = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-  const { pdfUrl, story } = location.state || {};
+    const {pdfUrl} = location.state || {};
+    const [extractedText, setExtractedText] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  const searchParams = new URLSearchParams(location.search);
-  const urlFromParams = searchParams.get('pdfUrl');
-  const storyFromParams = searchParams.get('story');
+    const searchParams = new URLSearchParams(location.search);
+    const urlFromParams = searchParams.get('pdfUrl');
+    searchParams.get('story');
+    const finalPdfUrl = pdfUrl || urlFromParams;
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
 
-  const finalPdfUrl = pdfUrl || urlFromParams;
-  const finalStory = story || storyFromParams;
+    const audioRef = useRef(null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false); // For TTS
+    const [currentCharIndex, setCurrentCharIndex] = useState(0); // TTS character index
+    const utteranceRef = useRef(null); // TTS utterance reference
 
-  const audioRef = useRef(null);
 
-  const handleMusicToggle = () => {
-    if (isPlaying) {
-      stopMusic();
-    } else {
-      setIsModalOpen(true); // Open the initial modal to ask about background music
+    const handleMusicToggle = () => {
+        if (isPlaying) {
+            stopMusic();
+        } else {
+            setIsModalOpen(true); // Open the initial modal to ask about background music
+        }
+    };
+
+    const stopMusic = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+        setIsPlaying(false);
+    };
+
+
+
+    const handleSpeechToggle = () => {
+        if (isSpeaking) {
+            stopSpeech(); // Stop speech and background music
+        } else {
+            setIsModalOpen(true); // Open modal to ask about background music
+        }
+    };
+
+    const stopSpeech = () => {
+        // Cancel the ongoing speech synthesis
+        window.speechSynthesis.cancel();
+
+        // Stop background music if playing
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+
+        // Set isSpeaking to false but keep the `currentCharIndex` to resume later
+        setIsSpeaking(false);
+    };
+
+    const startSpeechWithMusic = (musicUrl = null) => {
+        if (extractedText.length === 0) return;
+
+        // Join paragraphs into a single string for speech, preserving punctuation
+        const text = extractedText.join("\n\n");
+
+        // Create the speech synthesis utterance starting from the current position
+        const utterance = new SpeechSynthesisUtterance(text.slice(currentCharIndex));
+        utteranceRef.current = utterance;
+
+        // Event to track word boundaries and update the current character index
+        utterance.onboundary = (event) => {
+            if (event.name === 'word') {
+                setCurrentCharIndex(currentCharIndex + event.charIndex); // Update currentCharIndex
+            }
+        };
+
+        // Handle end of speech
+        utterance.onend = () => {
+            stopSpeech(); // Ensure cleanup
+        };
+
+        // Play background music if provided
+        if (musicUrl) {
+            audioRef.current = new Audio(musicUrl);
+            audioRef.current.play().catch((error) => {
+                console.error("Error playing the audio", error);
+            });
+        }
+
+        // Start speaking
+        window.speechSynthesis.speak(utterance);
+        setIsSpeaking(true);
+    };
+
+    const handleModalClose = (addMusic) => {
+        setIsModalOpen(false);
+
+        if (addMusic) {
+            setIsMusicModalOpen(true); // Open the music selection modal
+        } else {
+            startSpeechWithMusic(); // Start TTS without music
+        }
+    };
+
+    const handleMusicSelection = (music) => {
+        setIsMusicModalOpen(false);
+
+        let musicUrl = "";
+        if (music === "Nature") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FNature.mp3?alt=media";
+        } else if (music === "Rain") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FRain.mp3?alt=media";
+        } else if (music === "Calm") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FCalm.mp3?alt=media";
+        } else if (music === "Water") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FWater.mp3?alt=media";
+        } else if (music === "Horror") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FHorror.mp3?alt=media";
+        } else if (music === "Classic") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FClassic.mp3?alt=media";
+        } else if (music === "Action") {
+            musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FAction.mp3?alt=media";
+        }
+
+        startSpeechWithMusic(musicUrl); // Start TTS with selected music
+    };
+
+
+
+    // If there's no pdfUrl, show an error message and navigate back to the gallery
+    if (!finalPdfUrl) {
+        return (
+            <div className="text-center mt-20">
+                <p className="text-red-500">No PDF selected. Redirecting to the gallery...</p>
+                <button
+                    className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+                    onClick={() => navigate('/')}
+                >
+                    Go to Gallery
+                </button>
+            </div>
+        );
     }
-  };
 
-  const stopMusic = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    setIsPlaying(false);
-  };
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+        if (urlFromParams) {
+            console.log(urlFromParams);
+            extractTextFromPDF(urlFromParams);
+        }else if(urlFromParams == null) {
+            console.log(pdfUrl)
+            extractTextFromPDF(pdfUrl);
+        } else {
+            console.log("Invalid PDF URL");
+            console.log(urlFromParams);
+            setExtractedText(["Failed to extract text because the URL is invalid."]);
+        }
+    }, [urlFromParams]);
 
-  const handleModalClose = (addMusic) => {
-    setIsModalOpen(false);
-    
-    if (addMusic) {
-      setIsMusicModalOpen(true); // Open the music selection modal
-    } else {
-      startMusic("https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/animation?alt=media"); // Play silent audio if "No" is selected
-    }
-  };
+    const extractTextFromPDF = async (filePath) => {
+        setLoading(true);
 
-  const startMusic = (musicUrl) => {
-    audioRef.current = new Audio(musicUrl);
-    audioRef.current.play().catch(error => {
-      console.error("Error playing the audio", error);
-    });
-    setIsPlaying(true);
-  };
+        try {
+            if (!filePath) {
+                throw new Error("The PDF URL is invalid or undefined.");
+            }
 
-  const handleMusicSelection = (music) => {
-    setIsMusicModalOpen(false);
+            const storage = getStorage();
+            const fileRef = ref(storage, filePath);
+            const url = await getDownloadURL(fileRef);
 
-    let musicUrl = "";
-    if (music === "Nature") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FNature.mp3?alt=media";
-    } else if (music === "Rain") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FRain.mp3?alt=media";
-    } else if (music === "Calm") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FCalm.mp3?alt=media";
-    } else if (music === "Water") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FWater.mp3?alt=media";
-    } else if (music === "Horror") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FHorror.mp3?alt=media";
-    } else if (music === "Classic") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FClassic.mp3?alt=media";
-    } else if (music === "Action") {
-      musicUrl = "https://firebasestorage.googleapis.com/v0/b/audirab-44b07.appspot.com/o/Background%20Music%2FAction.mp3?alt=media";
-    }
+            // Fetch the PDF file
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch the PDF. HTTP Status: ${response.status}`);
+            }
 
-    startMusic(musicUrl);
-  };
+            const arrayBuffer = await response.arrayBuffer();
+            const typedArray = new Uint8Array(arrayBuffer);
 
-  // If there's no pdfUrl, show an error message and navigate back to the gallery
-  if (!finalPdfUrl) {
+            const pdf = await pdfjsLib.getDocument(typedArray).promise;
+            let paragraphs = [];
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+
+                // Group text items into paragraphs
+                const groupedParagraphs = groupTextIntoParagraphs(content.items);
+                paragraphs.push(...groupedParagraphs);
+            }
+
+            setExtractedText(paragraphs);
+        } catch (error) {
+            console.error("Error extracting text from PDF:", error.message);
+            setExtractedText(["Failed to extract text from the PDF.", error.message]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+// Helper function to group text into paragraphs
+    const groupTextIntoParagraphs = (textItems) => {
+        const lines = [];
+
+        textItems.forEach((item) => {
+            const y = Math.round(item.transform[5]); // Use the y-coordinate
+            const text = item.str;
+
+            // Find a line with a similar y-coordinate
+            const existingLine = lines.find(
+                (line) => Math.abs(line.y - y) < 5 // Adjust threshold for better grouping
+            );
+
+            if (existingLine) {
+                existingLine.text += ` ${text}`; // Append text to the existing line
+            } else {
+                lines.push({ y, text });
+            }
+        });
+
+        // Sort lines by y-coordinate (descending for PDF rendering order)
+        lines.sort((a, b) => b.y - a.y);
+
+        // Combine lines into paragraphs based on proximity
+        const paragraphs = [];
+        let currentParagraph = "";
+
+        lines.forEach((line, index) => {
+            if (index === 0 || Math.abs(line.y - lines[index - 1].y) > 15) {
+                // New paragraph if y-coordinate difference exceeds threshold
+                if (currentParagraph.trim()) {
+                    paragraphs.push(currentParagraph.trim());
+                }
+                currentParagraph = line.text;
+            } else {
+                currentParagraph += ` ${line.text}`; // Continue the current paragraph
+            }
+        });
+
+        if (currentParagraph.trim()) {
+            paragraphs.push(currentParagraph.trim()); // Add the last paragraph
+        }
+
+        return paragraphs;
+    };
+
+
+// Helper function to group text items by their y-coordinate
+    const groupTextByYCoordinate = (textItems) => {
+        const grouped = {};
+        textItems.forEach((item) => {
+            const y = Math.round(item.transform[5]); // Use the y-coordinate
+            if (!grouped[y]) {
+                grouped[y] = [];
+            }
+            grouped[y].push(item.str);
+        });
+
+        // Sort by y-coordinate and join text items into paragraphs
+        return Object.keys(grouped)
+            .sort((a, b) => b - a) // Sort by y-coordinate (descending for PDF rendering order)
+            .map((y) => grouped[y].join(" "));
+    };
+
+
+
+
     return (
-      <div className="text-center mt-20">
-        <p className="text-red-500">No PDF selected. Redirecting to the gallery...</p>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-          onClick={() => navigate('/')}
-        >
-          Go to Gallery
-        </button>
-      </div>
+        <div className="relative min-h-screen bg-gray-900">
+            <NavBar hideSearch={true}/>
+
+            {/* Music Visualizer */}
+            {isPlaying && (
+                <div className="flex justify-center bg-gray-900 mt-[-20px]">
+                    <MusicVisualizer/> {/* Positioned to stay in place */}
+                </div>
+            )}
+
+            <div className={`pt-[92px] ${isPlaying ? 'mt-48' : ''}`}> {/* Adjusted margin when music is playing */}
+                <iframe
+                    src={finalPdfUrl}
+                    className="w-full"
+                    title="PDF Viewer"
+                    style={{height: 'calc(100vh - 100px)', width: '100%'}}
+                ></iframe>
+            </div>
+
+            {/* First Modal to ask about background music */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+                    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-white relative">
+                        <FaTimes
+                            className="absolute top-2 right-2 text-gray-600 cursor-pointer"
+                            onClick={() => setIsModalOpen(false)}
+                        />
+                        <h2 className="text-lg font-semibold mb-4">Do you want to add background music?</h2>
+                        <div className="flex justify-end">
+                            <button
+                                className="bg-red-500 text-white py-2 px-4 rounded-lg mr-2"
+                                onClick={() => handleModalClose(false)} // No music
+                            >
+                                No
+                            </button>
+                            <button
+                                className="bg-green-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleModalClose(true)} // Yes, add music
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+
+            {/* Second Modal for music selection */}
+            {isMusicModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+                    <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-white relative">
+                        <FaTimes
+                            className="absolute top-2 right-2 text-gray-600 cursor-pointer"
+                            onClick={() => setIsMusicModalOpen(false)}
+                        />
+                        <h2 className="text-lg font-semibold mb-4">Select Background Music</h2>
+                        <div className="flex flex-col space-y-2">
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Nature")}
+                            >
+                                Nature
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Rain")}
+                            >
+                                Rain
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Calm")}
+                            >
+                                Calm
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Water")}
+                            >
+                                Water
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Horror")}
+                            >
+                                Horror
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Classic")}
+                            >
+                                Classic
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                                onClick={() => handleMusicSelection("Action")}
+                            >
+                                Action
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+
+            {/* Display extracted text */}
+            <div className="bg-white p-4 rounded-md shadow-md">
+                <h2 className="text-2xl font-bold text-gray-700 mb-4">Extracted Text</h2>
+                {loading ? (
+                    <p className="text-gray-500">Extracting text, please wait...</p>
+                ) : (
+                    <div className="bg-gray-100 p-4 rounded-md overflow-y-auto" style={{ maxHeight: "300px" }}>
+                        {extractedText.map((paragraph, index) => (
+                            <p key={index} className="text-sm text-gray-600 mb-4">
+                                {paragraph}
+                            </p>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+
+            {/* Speaker Button */}
+            <div className="fixed right-8 transition-all duration-500 top-36">
+                {isSpeaking ? (
+                    <FaStop
+                        onClick={handleSpeechToggle}
+                        className="cursor-pointer text-black p-2 border border-black"
+                        style={{
+                            fontSize: '30px',
+                            borderRadius: '10px',
+                            backgroundColor: 'white',
+                            width: '40px',
+                            height: '40px',
+                        }}
+                    />
+                ) : (
+                    <FaVolumeUp
+                        onClick={handleSpeechToggle}
+                        className="cursor-pointer text-black p-2 border border-black"
+                        style={{
+                            fontSize: '40px',
+                            borderRadius: '10px',
+                            backgroundColor: 'orange',
+                            width: '50px',
+                            height: '50px',
+                        }}
+                    />
+                )}
+            </div>
+
+        </div>
     );
-  }
-
-  return (
-    <div className="relative min-h-screen bg-gray-900">
-      <NavBar hideSearch={true} />
-      
-      {/* Music Visualizer */}
-      {isPlaying && (
-        <div className="flex justify-center bg-gray-900 mt-[-20px]">
-          <MusicVisualizer /> {/* Positioned to stay in place */}
-        </div>
-      )}
-
-      <div className={`pt-[92px] ${isPlaying ? 'mt-48' : ''}`}> {/* Adjusted margin when music is playing */}
-        <iframe
-          src={finalPdfUrl}
-          className="w-full"
-          title="PDF Viewer"
-          style={{ height: 'calc(100vh - 100px)', width: '100%' }}
-        ></iframe>
-      </div>
-
-      {/* First Modal to ask about background music */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-white relative">
-            <FaTimes
-              className="absolute top-2 right-2 text-gray-600 cursor-pointer"
-              onClick={() => setIsModalOpen(false)}
-            />
-            <h2 className="text-lg font-semibold mb-4">Do you want to add background music?</h2>
-            <div className="flex justify-end">
-              <button
-                className="bg-red-500 text-white py-2 px-4 rounded-lg mr-2"
-                onClick={() => handleModalClose(false)}
-              >
-                No
-              </button>
-              <button
-                className="bg-green-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleModalClose(true)}
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Second Modal for music selection */}
-      {isMusicModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg text-white relative">
-            <FaTimes
-              className="absolute top-2 right-2 text-gray-600 cursor-pointer"
-              onClick={() => setIsMusicModalOpen(false)}
-            />
-            <h2 className="text-lg font-semibold mb-4">Select Background Music</h2>
-            <div className="flex flex-col space-y-2">
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Nature")}
-              >
-                Nature
-              </button>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Rain")}
-              >
-                Rain
-              </button>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Calm")}
-              >
-                Calm
-              </button>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Water")}
-              >
-                Water
-              </button>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Horror")}
-              >
-                Horror
-              </button>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Classic")}
-              >
-                Classic
-              </button>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => handleMusicSelection("Action")}
-              >
-                Action
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Speaker Button */}
-      <div className={`fixed right-8 transition-all duration-500 ${isPlaying ? 'top-80' : 'top-36'}`}>
-        {isPlaying ? (
-          <FaStop 
-            onClick={handleMusicToggle}
-            className="cursor-pointer text-black p-2 border border-black" 
-            style={{ 
-              fontSize: '30px',
-              borderRadius: '10px',
-              backgroundColor: 'white',
-              width: '40px',
-              height: '40px',
-            }} 
-          />
-        ) : (
-          <FaVolumeUp 
-            onClick={handleMusicToggle}
-            className="cursor-pointer text-black p-2 border border-black" 
-            style={{ 
-              fontSize: '40px',
-              borderRadius: '10px',
-              backgroundColor: 'orange',
-              width: '50px',
-              height: '50px',
-            }} 
-          />
-        )}
-      </div>
-    </div>
-  );
 };
 
 export default PDFViewer;

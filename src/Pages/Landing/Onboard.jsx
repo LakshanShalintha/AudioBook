@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Onboard() {
+  let name ="vishwa"
+  console.log(name)
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate(); // useNavigate instead of useHistory
 

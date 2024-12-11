@@ -24,7 +24,7 @@ const New_Story = () => {
   const abortControllerRef = useRef(null);
 
   const genAI = new GoogleGenerativeAI(
-    "AIzaSyBSjI-d3vJnbEcADHl_NWnadU_KB7NXy2I"
+    "AIzaSyCOMGMDGUv3IsJEB-xmTskv9wF-pW7qotc"
   );
 
   const validateWord = (phrase) => {
