@@ -11,91 +11,67 @@ import {getDownloadURL, getStorage, ref} from "firebase/storage";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
 
 const PDFViewer = () => {
+
     const location = useLocation();
     const navigate = useNavigate();
 
+    // State variables
     const {pdfUrl} = location.state || {};
     const [extractedText, setExtractedText] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const searchParams = new URLSearchParams(location.search);
-    const urlFromParams = searchParams.get('pdfUrl');
-    searchParams.get('story');
-    const finalPdfUrl = pdfUrl || urlFromParams;
     const [isPlaying, setIsPlaying] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
-
-    const audioRef = useRef(null);
-
     const [isSpeaking, setIsSpeaking] = useState(false); // For TTS
     const [currentCharIndex, setCurrentCharIndex] = useState(0); // TTS character index
+    const [showVisualizer, setShowVisualizer] = useState(false); // Toggle MusicVisualizer
+    const [gender, setGender] = useState("Male"); // Default to "Male"
+
+    // Refs
+    const audioRef = useRef(null);
     const utteranceRef = useRef(null); // TTS utterance reference
 
+    // Extract URL from search params
+    const searchParams = new URLSearchParams(location.search);
+    const urlFromParams = searchParams.get('pdfUrl');
+    const finalPdfUrl = pdfUrl || urlFromParams;
+    searchParams.get('story');
 
-    const handleMusicToggle = () => {
-        if (isPlaying) {
-            stopMusic();
-        } else {
-            setIsModalOpen(true); // Open the initial modal to ask about background music
-        }
-    };
-
-    const stopMusic = () => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-        }
-        setIsPlaying(false);
-    };
-
-
-
+    // Speech control functions
     const handleSpeechToggle = () => {
         if (isSpeaking) {
-            stopSpeech(); // Stop speech and background music
+            stopSpeech(); // Stop speech and MusicVisualizer
         } else {
             setIsModalOpen(true); // Open modal to ask about background music
         }
     };
-
     const stopSpeech = () => {
-        // Cancel the ongoing speech synthesis
         window.speechSynthesis.cancel();
-
-        // Stop background music if playing
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
         }
-
-        // Set isSpeaking to false but keep the `currentCharIndex` to resume later
+        setShowVisualizer(false); // Hide visualizer
         setIsSpeaking(false);
+        setIsPlaying(false);
     };
-
     const startSpeechWithMusic = (musicUrl = null) => {
         if (extractedText.length === 0) return;
 
-        // Join paragraphs into a single string for speech, preserving punctuation
-        const text = extractedText.join("\n\n");
-
-        // Create the speech synthesis utterance starting from the current position
-        const utterance = new SpeechSynthesisUtterance(text.slice(currentCharIndex));
+        const text = extractedText.join(" ");
+        const utterance = new SpeechSynthesisUtterance(text.slice(currentCharIndex)); // Resume from `currentCharIndex`
         utteranceRef.current = utterance;
 
-        // Event to track word boundaries and update the current character index
         utterance.onboundary = (event) => {
             if (event.name === 'word') {
-                setCurrentCharIndex(currentCharIndex + event.charIndex); // Update currentCharIndex
+                setCurrentCharIndex(currentCharIndex + event.charIndex); // Update the index as the speech progresses
             }
         };
 
-        // Handle end of speech
         utterance.onend = () => {
-            stopSpeech(); // Ensure cleanup
+            stopSpeech(); // Ensure cleanup after speech ends
         };
 
-        // Play background music if provided
         if (musicUrl) {
             audioRef.current = new Audio(musicUrl);
             audioRef.current.play().catch((error) => {
@@ -103,23 +79,26 @@ const PDFViewer = () => {
             });
         }
 
-        // Start speaking
         window.speechSynthesis.speak(utterance);
         setIsSpeaking(true);
     };
 
+    // Modal handling functions
     const handleModalClose = (addMusic) => {
         setIsModalOpen(false);
+
 
         if (addMusic) {
             setIsMusicModalOpen(true); // Open the music selection modal
         } else {
             startSpeechWithMusic(); // Start TTS without music
+            setIsPlaying(true);
         }
     };
 
     const handleMusicSelection = (music) => {
         setIsMusicModalOpen(false);
+        setIsPlaying(true);
 
         let musicUrl = "";
         if (music === "Nature") {
@@ -141,38 +120,7 @@ const PDFViewer = () => {
         startSpeechWithMusic(musicUrl); // Start TTS with selected music
     };
 
-
-
-    // If there's no pdfUrl, show an error message and navigate back to the gallery
-    if (!finalPdfUrl) {
-        return (
-            <div className="text-center mt-20">
-                <p className="text-red-500">No PDF selected. Redirecting to the gallery...</p>
-                <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-                    onClick={() => navigate('/')}
-                >
-                    Go to Gallery
-                </button>
-            </div>
-        );
-    }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-        if (urlFromParams) {
-            console.log(urlFromParams);
-            extractTextFromPDF(urlFromParams);
-        }else if(urlFromParams == null) {
-            console.log(pdfUrl)
-            extractTextFromPDF(pdfUrl);
-        } else {
-            console.log("Invalid PDF URL");
-            console.log(urlFromParams);
-            setExtractedText(["Failed to extract text because the URL is invalid."]);
-        }
-    }, [urlFromParams]);
-
+    // PDF text extraction functions
     const extractTextFromPDF = async (filePath) => {
         setLoading(true);
 
@@ -215,7 +163,7 @@ const PDFViewer = () => {
         }
     };
 
-// Helper function to group text into paragraphs
+    // Helper function to group text into paragraphs
     const groupTextIntoParagraphs = (textItems) => {
         const lines = [];
 
@@ -231,7 +179,7 @@ const PDFViewer = () => {
             if (existingLine) {
                 existingLine.text += ` ${text}`; // Append text to the existing line
             } else {
-                lines.push({ y, text });
+                lines.push({y, text});
             }
         });
 
@@ -261,26 +209,35 @@ const PDFViewer = () => {
         return paragraphs;
     };
 
+    // UseEffect to load the PDF
+    useEffect(() => {
+        if (urlFromParams) {
+            console.log(urlFromParams);
+            extractTextFromPDF(urlFromParams);
+        } else if (urlFromParams == null) {
+            console.log(pdfUrl)
+            extractTextFromPDF(pdfUrl);
+        } else {
+            console.log("Invalid PDF URL");
+            console.log(urlFromParams);
+            setExtractedText(["Failed to extract text because the URL is invalid."]);
+        }
+    }, [urlFromParams]);
 
-// Helper function to group text items by their y-coordinate
-    const groupTextByYCoordinate = (textItems) => {
-        const grouped = {};
-        textItems.forEach((item) => {
-            const y = Math.round(item.transform[5]); // Use the y-coordinate
-            if (!grouped[y]) {
-                grouped[y] = [];
-            }
-            grouped[y].push(item.str);
-        });
-
-        // Sort by y-coordinate and join text items into paragraphs
-        return Object.keys(grouped)
-            .sort((a, b) => b - a) // Sort by y-coordinate (descending for PDF rendering order)
-            .map((y) => grouped[y].join(" "));
-    };
-
-
-
+    // If there's no pdfUrl, show an error message and navigate back to the gallery
+    if (!finalPdfUrl) {
+        return (
+            <div className="text-center mt-20">
+                <p className="text-red-500">No PDF selected. Redirecting to the gallery...</p>
+                <button
+                    className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+                    onClick={() => navigate('/')}
+                >
+                    Go to Gallery
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="relative min-h-screen bg-gray-900">
@@ -328,8 +285,6 @@ const PDFViewer = () => {
                     </div>
                 </div>
             )}
-
-
 
             {/* Second Modal for music selection */}
             {isMusicModalOpen && (
@@ -388,10 +343,8 @@ const PDFViewer = () => {
                 </div>
             )}
 
-
-
             {/* Display extracted text */}
-            <div className="bg-white p-4 rounded-md shadow-md">
+            {/*<div className="bg-white p-4 rounded-md shadow-md">
                 <h2 className="text-2xl font-bold text-gray-700 mb-4">Extracted Text</h2>
                 {loading ? (
                     <p className="text-gray-500">Extracting text, please wait...</p>
@@ -404,11 +357,11 @@ const PDFViewer = () => {
                         ))}
                     </div>
                 )}
-            </div>
+            </div>*/}
 
 
-            {/* Speaker Button */}
-            <div className="fixed right-8 transition-all duration-500 top-36">
+            {/* Speaker Button and Gender Dropdown */}
+            <div className={`fixed right-8 transition-all duration-500 ${isPlaying ? 'top-80' : 'top-36'}`}>
                 {isSpeaking ? (
                     <FaStop
                         onClick={handleSpeechToggle}
@@ -434,10 +387,20 @@ const PDFViewer = () => {
                         }}
                     />
                 )}
-            </div>
 
+                {/* Gender Dropdown */}
+                <div className="mt-4">
+                    <select
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        className="bg-gray-700 text-white py-2 px-1 rounded-lg"
+                    >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
         </div>
     );
 };
-
 export default PDFViewer;
