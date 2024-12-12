@@ -55,6 +55,7 @@ const PDFViewer = () => {
         setIsSpeaking(false);
         setIsPlaying(false);
     };
+    // Set up speech with slower speed
     const startSpeechWithMusic = (musicUrl = null) => {
         if (extractedText.length === 0) return;
 
@@ -62,8 +63,14 @@ const PDFViewer = () => {
         const utterance = new SpeechSynthesisUtterance(text.slice(currentCharIndex)); // Resume from `currentCharIndex`
         utteranceRef.current = utterance;
 
+        utterance.rate = 0.75; // Set the speech rate (0.8 for slower speech)
+        utterance.pitch = 1; // Optionally adjust pitch
+        utterance.voice = window.speechSynthesis
+            .getVoices()
+            .find((voice) => (gender === "Male" ? voice.name.includes("Male") : voice.name.includes("Female"))) || null;
+
         utterance.onboundary = (event) => {
-            if (event.name === 'word') {
+            if (event.name === "word") {
                 setCurrentCharIndex(currentCharIndex + event.charIndex); // Update the index as the speech progresses
             }
         };
@@ -82,6 +89,7 @@ const PDFViewer = () => {
         window.speechSynthesis.speak(utterance);
         setIsSpeaking(true);
     };
+
 
     // Modal handling functions
     const handleModalClose = (addMusic) => {
