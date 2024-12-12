@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import NavBar from '../../Common_Parts/Common/NavBar'; 
@@ -21,9 +22,20 @@ function Gallery() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const topItems = [
+    { name: 'Literature & Fiction', path: '/Literature_Fiction' },
+    { name: 'Romance', path: '/Romance' },
+    { name: 'Biographies & Memories', path: '/Biographies_Memories' },
+    { name: 'Personal Growth', path: '/Personal_Growth' },
+    { name: 'Kids & Family', path: '/Kids_Family' },
+  ];
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   useEffect(() => {
     const fetchPdfs = async (folderRef) => {
-      const storage = getStorage();
+      getStorage();
       let pdfs = [];
 
       try {
@@ -163,9 +175,8 @@ function Gallery() {
     const userDocRef = doc(db, `users/${user.uid}/likesDislikes`, pdf.name);
 
     try {
-      const likesDocSnap = await getDoc(likesDocRef);
-      const userDocSnap = await getDoc(userDocRef);
-
+      await getDoc(likesDocRef);
+      await getDoc(userDocRef);
       let newLikeCounts = { ...likeCounts };
       let newDislikeCounts = { ...dislikeCounts };
       let userLikes = { ...likes };
@@ -207,9 +218,8 @@ function Gallery() {
     const userDocRef = doc(db, `users/${user.uid}/likesDislikes`, pdf.name);
 
     try {
-      const likesDocSnap = await getDoc(likesDocRef);
-      const userDocSnap = await getDoc(userDocRef);
-
+      await getDoc(likesDocRef);
+      await getDoc(userDocRef);
       let newLikeCounts = { ...likeCounts };
       let newDislikeCounts = { ...dislikeCounts };
       let userLikes = { ...likes };
@@ -257,95 +267,112 @@ function Gallery() {
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen flex flex-col">
-      <NavBar />
+      <div className="bg-gray-900 min-h-screen flex flex-col">
+        <NavBar/>
 
-      <div className="font-bold mt-36 ml-64">
-        <h1 className="text-white text-5xl">
-          Gallery
-        </h1>
-      </div>
+        <div className="font-bold mt-36 ml-64">
+          <h1 className="text-white text-5xl">
+            Gallery
+          </h1>
+        </div>
 
-      <div className="fixed top-0 right-0 mt-36 mr-32">
-        <button 
-          className="bg-gray-600 text-white px-4 py-2 rounded"
-          onClick={handleFavoriteButtonClick}
-        >
-          Favorite
-        </button>
-      </div>
-
-      <div className="p-4 flex-grow flex justify-center items-center">
-        <div className="max-w-5xl w-full">
-          {loading ? (
-            <div className="text-white text-center">
-              Loading...
-            </div>
-          ) : filteredPdfFiles.length === 0 ? (
-            <div className="text-white text-center">
-              No PDF available
-            </div>
-          ) : (
-            <div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-4 justify-center"
-              style={{ marginTop: '40px' }} 
-            >
-              {filteredPdfFiles.map((pdf) => (
-                <div 
-                  key={pdf.name} 
-                  className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-950 rounded-lg text-orange-200 relative cursor-pointer"
-                  onClick={() => handlePdfClick(pdf)}
+        {/* Top grid items */}
+        <div className="flex justify-center mt-10 -mb-8">
+          <div className="flex flex-wrap justify-center gap-4 z-10">
+            {topItems.map((item, index) => (
+                <div
+                    key={index}
+                    className="w-[190px] h-[30px] flex justify-center items-center p-4 bg-orange-300 rounded-lg text-black cursor-pointer font-bold z-10"
+                    onClick={() => handleNavigation(item.path)}
                 >
-                  <a href="#!" className="truncate w-full text-center" style={{ fontSize: '24px' }}> 
-                    {formatPdfName(pdf.name)}
-                  </a>
+                  <span className="truncate w-full text-center">{item.name}</span>
+                </div>
+            ))}
+          </div>
+        </div>
 
-                  <FaHeart 
-                    className={`absolute top-2 right-2 cursor-pointer ${
-                    favorites.includes(pdf.name) ? 'text-red-500' : 'text-gray-100'
-                    }`}
-                    onClick={(e) => { 
-                    e.stopPropagation(); 
-                    toggleFavorite(pdf); 
-                    }}
-                    style={{ fontSize: '20px' }} // Adjust the font size as needed
-                  />
 
-                  <div className="absolute bottom-2 left-2 flex space-x-2 items-center">
-                    <FaThumbsUp 
-                      className={`cursor-pointer text-1xs ${
-                        likes[pdf.name] ? 'text-blue-600' : 'text-gray-400'
-                      }`}
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        toggleLike(pdf); 
-                      }}
-                    />
-                    <span className="text-white text-xs">
+        <div className="fixed top-0 right-0 mt-40 mr-32 z-20">
+          <button
+              className="bg-gray-600 text-white px-4 py-2 rounded z-20"
+              onClick={handleFavoriteButtonClick}
+          >
+            Favorite
+          </button>
+        </div>
+
+
+        <div className="p-4 flex-grow flex justify-center items-center">
+          <div className="max-w-5xl w-full">
+            {loading ? (
+                <div className="text-white text-center">
+                Loading...
+                </div>
+            ) : filteredPdfFiles.length === 0 ? (
+                <div className="text-white text-center">
+                  No PDF available
+                </div>
+            ) : (
+                <div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-4 justify-center"
+                    style={{marginTop: '40px'}}
+                >
+                  {filteredPdfFiles.map((pdf) => (
+                      <div
+                          key={pdf.name}
+                          className="w-full h-[100px] flex justify-center items-center p-4 bg-blue-950 rounded-lg text-orange-200 relative cursor-pointer"
+                          onClick={() => handlePdfClick(pdf)}
+                      >
+                        <a href="#!" className="truncate w-full text-center" style={{fontSize: '24px'}}>
+                          {formatPdfName(pdf.name)}
+                        </a>
+
+                        <FaHeart
+                            className={`absolute top-2 right-2 cursor-pointer ${
+                                favorites.includes(pdf.name) ? 'text-red-500' : 'text-gray-100'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(pdf);
+                            }}
+                            style={{fontSize: '20px'}} // Adjust the font size as needed
+                        />
+
+                        <div className="absolute bottom-2 left-2 flex space-x-2 items-center">
+                          <FaThumbsUp
+                              className={`cursor-pointer text-1xs ${
+                                  likes[pdf.name] ? 'text-blue-600' : 'text-gray-400'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleLike(pdf);
+                              }}
+                          />
+                          <span className="text-white text-xs">
                       {likeCounts[pdf.name] || 0}
                     </span>
-                    <FaThumbsDown 
-                      className={`cursor-pointer text-1xs ${
-                        dislikes[pdf.name] ? 'text-red-400' : 'text-gray-400'
-                      }`}
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        toggleDislike(pdf); 
-                      }}
-                    />
-                    <span className="text-white text-xs">
+                          <FaThumbsDown
+                              className={`cursor-pointer text-1xs ${
+                                  dislikes[pdf.name] ? 'text-red-400' : 'text-gray-400'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDislike(pdf);
+                              }}
+                          />
+                          <span className="text-white text-xs">
                       {dislikeCounts[pdf.name] || 0}
                     </span>
-                  </div>
+                        </div>
+                      </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
 
-      <Footer />
-    </div>
+        <Footer/>
+      </div>
   );
 }
 
