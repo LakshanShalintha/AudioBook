@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
+// eslint-disable-next-line no-unused-vars
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {getDownloadURL, getStorage, listAll, ref} from 'firebase/storage';
 import NavBar from '../Common/NavBar';
+import {FaHeart} from "react-icons/fa";
 
 function Romance() {
   const navigate = useNavigate();
   const [pdfFiles, setPdfFiles] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
+    const [favorites, setFavorites] = useState([]); // Favorites state
 
   const topItems = [
     { name: 'Literature & Fiction', path: '/Literature_Fiction' },
@@ -46,12 +49,23 @@ function Romance() {
     });
   };
 
+    const toggleFavorite = (pdf) => {
+        setFavorites((prevFavorites) =>
+            prevFavorites.includes(pdf.name)
+                ? prevFavorites.filter((item) => item !== pdf.name) // Remove from favorites
+                : [...prevFavorites, pdf.name] // Add to favorites
+        );
+    };
+
   return (
     <div className="bg-gray-900 min-h-screen text-white flex flex-col">
       <NavBar hideSearch={true} />
 
-      {/* Top grid items */}
-      <div className="flex justify-center mt-0">
+        {/* Page title */}
+        <h1 className="text-center text-4xl mt-28 font-bold">Romance</h1>
+
+        {/* Top grid items */}
+        <div className="flex justify-center -mt-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-2">
           {topItems.map((item, index) => (
             <div 
@@ -69,16 +83,14 @@ function Romance() {
         </div>
       </div>
 
-      {/* Page title */}
-      <h1 className="text-center text-4xl mt-8 font-bold">Romance</h1>
-
       {/* PDF grid items */}
       <div className="flex-grow flex justify-center items-center">
         <div className="max-w-5xl w-full">
           {loading ? (
             <div className="text-center text-xl">Loading...</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-4 justify-center mt-8 px-4">
+              <div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-4 justify-center -mt-20 px-4">
               {pdfFiles.map((pdf, index) => (
                 <div 
                   key={index} 
@@ -88,6 +100,20 @@ function Romance() {
                   <span className="truncate w-full text-center">
                     {pdf.name.replace('.pdf', '')}
                   </span>
+
+                    {/* Heart Icon */}
+                    <FaHeart
+                        className={`absolute top-2 right-2 cursor-pointer ${
+                            favorites.includes(pdf.name)
+                                ? "text-red-500"
+                                : "text-gray-300"
+                        }`}
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the parent click
+                            toggleFavorite(pdf);
+                        }}
+                        style={{fontSize: "20px"}}
+                    />
                 </div>
               ))}
             </div>
