@@ -1,20 +1,21 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [react()],
-  optimizeDeps: {
-    exclude: ['pdfjs-dist'],
-  },
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks: (id) => {
+          // Split dependencies from node_modules into a separate chunk
+          if (id.includes('node_modules')) {
+            return 'vendor'; // Creates a vendor.js chunk
+          }
+          // Split pdfjs-dist into its own chunk
           if (id.includes('pdfjs-dist')) {
-            return 'pdfjs-dist';
+            return 'pdfjs';
           }
         },
       },
     },
+    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
   },
-})
+});

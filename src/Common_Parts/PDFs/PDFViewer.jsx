@@ -18,13 +18,13 @@ const PDFViewer = () => {
     // State variables
     const {pdfUrl} = location.state || {};
     const [extractedText, setExtractedText] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false); // For TTS
     const [currentCharIndex, setCurrentCharIndex] = useState(0); // TTS character index
-    const [showVisualizer, setShowVisualizer] = useState(false); // Toggle MusicVisualizer
+    const [, setShowVisualizer] = useState(false); // Toggle MusicVisualizer
     const [gender, setGender] = useState("Male"); // Default to "Male"
 
     // Refs
@@ -63,7 +63,7 @@ const PDFViewer = () => {
         const utterance = new SpeechSynthesisUtterance(text.slice(currentCharIndex)); // Resume from `currentCharIndex`
         utteranceRef.current = utterance;
 
-        utterance.rate = 0.75; // Set the speech rate (0.8 for slower speech)
+        utterance.rate = 0.65; // Set the speech rate (0.8 for slower speech)
         utterance.pitch = 1; // Optionally adjust pitch
         utterance.voice = window.speechSynthesis
             .getVoices()

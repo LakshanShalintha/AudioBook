@@ -1,14 +1,14 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useNavigate } from "react-router-dom";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import {ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebase';
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import Footer from '../../Common_Parts/Common/Footer';
-import speakStory from '../../Common_Parts/API_Parts/APIServices';
-import { FaVolumeUp, FaTimes } from 'react-icons/fa'; // Import FaTimes icon
+import { FaTimes } from 'react-icons/fa'; // Import FaTimes icon
 
 import onboardImage from '/images/Onboarding/onboard01.webp';
 
@@ -27,9 +27,26 @@ const New_Story = () => {
     "AIzaSyCOMGMDGUv3IsJEB-xmTskv9wF-pW7qotc"
   );
 
-  const validateWord = (phrase) => {
+    const translateToLanguage = async (storyText, language) => {
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const translationPrompt = `Please translate the following story into ${language}, ensuring all English words are converted into ${language} while keeping the story meaning intact:\n\n${storyText}`;
+
+            const result = await model.generateContent(translationPrompt);
+            let translatedText = result.response.text();
+
+            console.log("Translated Story:", translatedText);
+            return translatedText;
+        } catch (error) {
+            console.error("Translation Error:", error);
+            return storyText; // Return original if translation fails
+        }
+    };
+
+
+    const validateWord = (phrase) => {
     const words = phrase.split(" ");
-    if (words.length < 1 || words.length > 5) return false;
+    if (words.length < 1 || words.length > 50) return false;
     const regex = /^[A-Za-z]{3,}$/;
     return words.every(word => regex.test(word));
   };
@@ -42,31 +59,36 @@ const New_Story = () => {
     const { signal } = abortControllerRef.current;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });                      //Give the maximum number of words you can build
 
-        const prompt = `Write a long imaginative audio book story for relax mind, give that perfect and like real story in more than 20000 words based on the phrase and the story should real wordl story: ${input}. The story should be engaging and suitable for all ages. Please generate the story in ${language}.`;
+        const prompt = `Write a long imaginative audio book story for relax mind, give that perfect and like real story in more than 20000 words based on the phrase . based on the phrase and the story should real wold story: ${input}. The story should be engaging and suitable for all ages. Please generate the story in ${language}.`;
 
         const result = await model.generateContent(prompt, { signal });
         let storyText = result.response.text();
+        storyText = storyText.replace(/\*/g, "").replace(/\(.*?\)/g, "").trim();
 
-        // Remove star marks (*) from the story text
-        storyText = storyText.replace(/\*/g, "");
-        
-        // Print the generated story to the console
-        console.log("Generated Story:", storyText);
+        // If language is Tamil or Sinhala, translate English words
+        if (language === "Tamil" || language === "Sinhala") {
+            storyText = await translateToLanguage(storyText, language);
+        }
 
+        console.log("Final Story:", storyText);
         setStory(storyText);
 
+
+
+
         // Generate the summary
-        const summaryPrompt = `Please summarize the following story: ${storyText}`;
+        const summaryPrompt = `Please summarize the following story in ${language}: ${storyText}`;
         const summaryResult = await model.generateContent(summaryPrompt, { signal });
         const storySummary = summaryResult.response.text();
         setSummary(storySummary);
 
         console.log("Story Summary:", storySummary);
 
+
         const [rawSubtopic, ...restOfStory] = storyText.split('\n\n');
-        const subtopic = rawSubtopic.replace(/^##\s*/, ''); 
+        const subtopic = rawSubtopic.replace(/^##\s*/, '');
         const paragraphs = restOfStory.join('\n\n').split('\n\n');
 
         const doc = new jsPDF();
@@ -86,7 +108,7 @@ const New_Story = () => {
         const xPos = doc.internal.pageSize.width - imgWidth - marginRight; // X position for the right corner
         const yPos = marginTop; // Y position for the top
 
-        // Add the image to the PDF at the top right corner
+        // Add the image to the PDF
         doc.addImage(onboardImage, 'webp', xPos, yPos, imgWidth, imgHeight);
 
         doc.setFont("helvetica", "bold"); // Set the font to Helvetica bold
@@ -104,15 +126,15 @@ const New_Story = () => {
         // Adjust text position
 
         const adjustedMarginLeft = marginLeft + 15; // Increase marginLeft by 10 units for additional left margin
-        doc.setFont("helvetica", "bold"); 
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
         doc.setTextColor(255, 213, 128);   //255, 195, 0/255, 191, 0
         doc.text(subtopic, adjustedMarginLeft, yPos + imgHeight + 40);
 
-        //doc.setFont("helvetica", "bold"); 
+        //doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.setTextColor(255, 255, 255); 
-        
+        doc.setTextColor(255, 255, 255);
+
 
         const paragraphMarginLeft = marginLeft + 15; // Add additional left margin for paragraphs
         const paragraphMarginRight = marginRight + 15; // Add additional right margin for paragraphs
@@ -121,7 +143,7 @@ const New_Story = () => {
         const pageHeight = doc.internal.pageSize.height;
         const lineHeight = 7;
         const marginBottom = 20;
-      
+
         paragraphs.forEach((paragraph) => {
             // Adjust the width available for text by subtracting both margins
             const availableWidth = doc.internal.pageSize.width - paragraphMarginLeft - paragraphMarginRight;
