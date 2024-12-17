@@ -8,8 +8,7 @@ import jsPDF from "jspdf";
 import 'jspdf-autotable';
 import NavBar from '../../Common_Parts/Common/NavBar';
 import Footer from '../../Common_Parts/Common/Footer';
-import { FaTimes } from 'react-icons/fa'; // Import FaTimes icon
-
+import { FaTimes } from 'react-icons/fa';
 import onboardImage from '/images/Onboarding/onboard01.webp';
 
 const New_Story = () => {
@@ -46,7 +45,7 @@ const New_Story = () => {
 
     const validateWord = (phrase) => {
     const words = phrase.split(" ");
-    if (words.length < 1 || words.length > 50) return false;
+    if (words.length < 1 || words.length > 10) return false;
     const regex = /^[A-Za-z]{3,}$/;
     return words.every(word => regex.test(word));
   };

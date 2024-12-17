@@ -22,7 +22,7 @@ import LiteratureFiction from './Common_Parts/Categories/Literature_Fiction';
 import PersonalGrowth from './Common_Parts/Categories/Personal_Growth';
 import Romance from './Common_Parts/Categories/Romance';
 import AboutUs from './Pages/Home/About';
-import Reviews from './Common_Parts/Account/Reviews';
+import Reviews from './Pages/Home/Reviews';
 
 function App() {
 
