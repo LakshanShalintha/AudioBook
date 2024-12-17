@@ -18,4 +18,10 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
   },
+  optimizeDeps: {
+    exclude: [
+      'pdf.worker.mjs', // Exclude the PDF worker from optimization
+      'pdfjs-dist', // Exclude the entire pdfjs-dist package if necessary
+    ],
+  },
 });

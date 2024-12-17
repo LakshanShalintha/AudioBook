@@ -305,7 +305,7 @@ function Gallery() {
         <div className="p-4 flex-grow flex justify-center items-center">
           <div className="max-w-5xl w-full">
             {loading ? (
-                <div className="text-white text-center">
+                <div className="text-white text-center mt-20">
                 Loading...
                 </div>
             ) : filteredPdfFiles.length === 0 ? (
