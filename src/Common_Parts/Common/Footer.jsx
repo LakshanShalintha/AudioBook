@@ -18,7 +18,7 @@ function Footer() {
                 </a>
               </p>
               <p className='mt-4'>045 5523456</p>
-              <p>071 456987</p>
+              <p>071 4569877</p>
               <p className='mb-3'> 074 2310123</p>
             </div>
 

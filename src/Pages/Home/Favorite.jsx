@@ -1,3 +1,4 @@
+import React from 'react';
 import  { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; 
 import NavBar from '../../Common_Parts/Common/NavBar'; 
@@ -89,7 +90,7 @@ function Favorite() {
       <div className="p-4 flex-grow flex justify-center items-center">
         <div className="max-w-5xl w-full">
           {filteredFavorites.length === 0 ? (
-            <div className="text-white text-center">
+            <div className="text-white text-center mt-52">
               No PDF available
             </div>
           ) : (
