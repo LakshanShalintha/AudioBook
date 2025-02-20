@@ -23,7 +23,7 @@ const New_Story = () => {
   const abortControllerRef = useRef(null);
 
   const genAI = new GoogleGenerativeAI(
-    "AIzaSyCOMGMDGUv3IsJEB-xmTskv9wF-pW7qotc"
+    "AIzaSyDUdnyUHHr-s1wEda9_hs6NnW4RXP30Vag"
   );
 
     const translateToLanguage = async (storyText, language) => {
